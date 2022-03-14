@@ -233,26 +233,34 @@ const RightMenu = ({
           icon={<Icons.TriangleDown iconSize="xl" />}
         >
           {settings.map((section, index) => [
-            <Menu.ItemGroup key={`${section.label}`} title={section.label}>
-              {section.childs?.map(child => {
-                if (typeof child !== 'string') {
-                  return (
-                    <Menu.Item key={`${child.label}`}>
-                      {isFrontendRoute(child.url) ? (
-                        <Link to={child.url || ''}>{child.label}</Link>
-                      ) : (
-                        <a href={child.url}>{child.label}</a>
-                      )}
-                    </Menu.Item>
-                  );
-                }
-                return null;
-              })}
-            </Menu.ItemGroup>,
+            section.label == 'Security' ? null : (
+              <Menu.ItemGroup key={`${section.label}`} title={section.label}>
+                {section.childs?.map(child => {
+                  if (typeof child !== 'string') {
+                    if (
+                      section.label == 'Manage' &&
+                      child.label !== 'Import Dashboards'
+                    ) {
+                      return null;
+                    }
+                    return (
+                      <Menu.Item key={`${child.label}`}>
+                        {isFrontendRoute(child.url) ? (
+                          <Link to={child.url || ''}>{child.label}</Link>
+                        ) : (
+                          <a href={child.url}>{child.label}</a>
+                        )}
+                      </Menu.Item>
+                    );
+                  }
+                  return null;
+                })}
+              </Menu.ItemGroup>
+            ),
             index < settings.length - 1 && <Menu.Divider />,
           ])}
 
-          {!navbarRight.user_is_anonymous && [
+          {/* {!navbarRight.user_is_anonymous && [
             <Menu.Divider key="user-divider" />,
             <Menu.ItemGroup key="user-section" title={t('User')}>
               {navbarRight.user_profile_url && (
@@ -269,7 +277,7 @@ const RightMenu = ({
                 <a href={navbarRight.user_logout_url}>{t('Logout')}</a>
               </Menu.Item>
             </Menu.ItemGroup>,
-          ]}
+          ]} */}
           {(navbarRight.version_string || navbarRight.version_sha) && [
             <Menu.Divider key="version-info-divider" />,
             <Menu.ItemGroup key="about-section" title={t('About')}>
