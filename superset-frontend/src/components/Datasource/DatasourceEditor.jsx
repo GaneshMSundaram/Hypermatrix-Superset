@@ -892,18 +892,20 @@ class DatasourceEditor extends React.PureComponent {
           </EditLockContainer>
         )}
         <div className="m-l-10 m-t-20 m-b-10">
-          {DATASOURCE_TYPES_ARR.map(type => (
-            <Radio
-              key={type.key}
-              value={type.key}
-              inline
-              onChange={this.onDatasourceTypeChange.bind(this, type.key)}
-              checked={this.state.datasourceType === type.key}
-              disabled={!this.state.isEditMode}
-            >
-              {type.label}
-            </Radio>
-          ))}
+          {DATASOURCE_TYPES_ARR.map(type =>
+            type.key == 'physical' ? null : (
+              <Radio
+                key={type.key}
+                value={type.key}
+                inline
+                onChange={this.onDatasourceTypeChange.bind(this, type.key)}
+                checked={this.state.datasourceType === type.key}
+                disabled={!this.state.isEditMode}
+              >
+                {type.label}
+              </Radio>
+            ),
+          )}
         </div>
         <hr />
         <Fieldset item={datasource} onChange={this.onDatasourceChange} compact>
