@@ -260,24 +260,6 @@ const RightMenu = ({
             index < settings.length - 1 && <Menu.Divider />,
           ])}
 
-          {/* {!navbarRight.user_is_anonymous && [
-            <Menu.Divider key="user-divider" />,
-            <Menu.ItemGroup key="user-section" title={t('User')}>
-              {navbarRight.user_profile_url && (
-                <Menu.Item key="profile">
-                  <a href={navbarRight.user_profile_url}>{t('Profile')}</a>
-                </Menu.Item>
-              )}
-              {navbarRight.user_info_url && (
-                <Menu.Item key="info">
-                  <a href={navbarRight.user_info_url}>{t('Info')}</a>
-                </Menu.Item>
-              )}
-              <Menu.Item key="logout">
-                <a href={navbarRight.user_logout_url}>{t('Logout')}</a>
-              </Menu.Item>
-            </Menu.ItemGroup>,
-          ]} */}
           {(navbarRight.version_string || navbarRight.version_sha) && [
             <Menu.Divider key="version-info-divider" />,
             <Menu.ItemGroup key="about-section" title={t('About')}>
