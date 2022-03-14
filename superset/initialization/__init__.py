@@ -228,15 +228,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             href="/superset/welcome/",
             cond=lambda: bool(appbuilder.app.config["LOGO_TARGET_PATH"]),
         )
-        appbuilder.add_view(
-            AnnotationLayerModelView,
-            "Annotation Layers",
-            label=__("Annotation Layers"),
-            icon="fa-comment",
-            category="Manage",
-            category_label=__("Manage"),
-            category_icon="",
-        )
+        
         appbuilder.add_view(
             DashboardModelView,
             "Dashboards",
@@ -264,26 +256,8 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
                 "DYNAMIC_PLUGINS"
             ),
         )
-        appbuilder.add_view(
-            CssTemplateModelView,
-            "CSS Templates",
-            label=__("CSS Templates"),
-            icon="fa-css3",
-            category="Manage",
-            category_label=__("Manage"),
-            category_icon="",
-        )
-        appbuilder.add_view(
-            RowLevelSecurityFiltersModelView,
-            "Row Level Security",
-            label=__("Row Level Security"),
-            category="Security",
-            category_label=__("Security"),
-            icon="fa-lock",
-            menu_cond=lambda: feature_flag_manager.is_feature_enabled(
-                "ROW_LEVEL_SECURITY"
-            ),
-        )
+        
+        
 
         #
         # Setup views with no menu
@@ -371,18 +345,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_separator("Data")
 
         appbuilder.add_api(LogRestApi)
-        appbuilder.add_view(
-            LogModelView,
-            "Action Log",
-            label=__("Action Log"),
-            category="Security",
-            category_label=__("Security"),
-            icon="fa-list-ol",
-            menu_cond=lambda: (
-                self.config["FAB_ADD_SECURITY_VIEWS"]
-                and self.config["SUPERSET_LOG_VIEW"]
-            ),
-        )
+        
         appbuilder.add_api(SecurityRestApi)
         #
         # Conditionally setup email views

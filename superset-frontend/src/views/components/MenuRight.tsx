@@ -91,33 +91,17 @@ const RightMenu = ({
       label: t('Data'),
       icon: 'fa-database',
       childs: [
-        {
-          label: t('Connect database'),
-          name: GlobalMenuDataOptions.DB_CONNECTION,
-          perm: true,
-        },
+       
         {
           label: t('Connect Google Sheet'),
           name: GlobalMenuDataOptions.GOOGLE_SHEETS,
           perm: HAS_GSHEETS_INSTALLED,
         },
         {
-          label: t('Upload CSV to database'),
-          name: 'Upload a CSV',
-          url: '/csvtodatabaseview/form',
-          perm: CSV_EXTENSIONS,
-        },
-        {
           label: t('Upload columnar file to database'),
           name: 'Upload a Columnar file',
           url: '/columnartodatabaseview/form',
           perm: COLUMNAR_EXTENSIONS,
-        },
-        {
-          label: t('Upload Excel file to database'),
-          name: 'Upload Excel',
-          url: '/exceltodatabaseview/form',
-          perm: EXCEL_EXTENSIONS,
         },
       ],
     },
