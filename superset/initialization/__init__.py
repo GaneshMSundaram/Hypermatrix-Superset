@@ -227,8 +227,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             label=__("Home"),
             href="/superset/welcome/",
             cond=lambda: bool(appbuilder.app.config["LOGO_TARGET_PATH"]),
-        )
-        
+        )        
         appbuilder.add_view(
             DashboardModelView,
             "Dashboards",
@@ -256,8 +255,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
                 "DYNAMIC_PLUGINS"
             ),
         )
-        
-        
 
         #
         # Setup views with no menu

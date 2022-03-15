@@ -272,9 +272,7 @@ export function Menu({
             title={brand.tooltip}
             arrowPointAtCenter
           >
-            <a className="navbar-brand" href={brand.path}>
-              <img width={brand.width} src={brand.icon} alt={brand.alt} />
-            </a>
+            
           </Tooltip>
           {brand.text && (
             <div className="navbar-brand-text">
