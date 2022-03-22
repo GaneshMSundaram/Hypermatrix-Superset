@@ -43,6 +43,7 @@ from typing_extensions import Literal
 from werkzeug.local import LocalProxy
 
 from superset.constants import CHANGE_ME_SECRET_KEY
+from superset.custom_security_manager import CustomSecurityManagerSameFile
 from superset.jinja_context import BaseTemplateProcessor
 from superset.stats_logger import DummyStatsLogger
 from superset.typing import CacheConfig
@@ -50,6 +51,8 @@ from superset.utils.core import is_test, parse_boolean_string
 from superset.utils.encrypt import SQLAlchemyUtilsAdapter
 from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
+from flask_appbuilder.security.manager import AUTH_REMOTE_USER
+
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +111,6 @@ def _try_json_readsha(filepath: str, length: int) -> Optional[str]:
     except Exception:  # pylint: disable=broad-except
         return None
 
-
 #
 # If True, we will skip the call to load the logger config found in alembic.init
 #
@@ -162,7 +164,7 @@ SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT = 0
 SUPERSET_DASHBOARD_PERIODICAL_REFRESH_WARNING_MESSAGE = None
 
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
-CUSTOM_SECURITY_MANAGER = None
+CUSTOM_SECURITY_MANAGER = CustomSecurityManagerSameFile
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 # ---------------------------------------------------------
 
@@ -172,6 +174,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = CHANGE_ME_SECRET_KEY
 
 # The SQLAlchemy connection string.
+# SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres123@postgresql.cqjxk9hplpul.us-east-2.rds.amazonaws.com/superset'
 SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
@@ -281,7 +284,7 @@ DRUID_METADATA_LINKS_ENABLED = True
 # AUTH_DB : Is for database (username/password)
 # AUTH_LDAP : Is for LDAP
 # AUTH_REMOTE_USER : Is for using REMOTE_USER from web server
-AUTH_TYPE = AUTH_DB
+AUTH_TYPE = AUTH_REMOTE_USER
 
 # Uncomment to setup Full admin role name
 # AUTH_ROLE_ADMIN = 'Admin'
