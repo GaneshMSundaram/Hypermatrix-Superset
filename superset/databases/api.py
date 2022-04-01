@@ -96,7 +96,8 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "function_names",
         "available",
         "validate_parameters",
-        "schemas_greeting"
+        "schemas_greeting",
+        "database_metadata",
     }
     resource_name = "database"
     class_permission_name = "Database"
@@ -418,6 +419,24 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
     )
     def schemas_greeting(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
        return self.response(200, message="Hello")
+
+
+    ########################################## Get Database metadata #########################################
+    @expose("/<int:pk>/database_metadata/<schema_name>/")
+    @protect()
+    @safe
+    # @rison(database_schemas_query_schema)
+    # @check_datasource_access
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}" f".database_metadata",
+        log_to_statsd=False,
+    )
+    def database_metadata(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
+      database: Database = self.datamodel.get(pk)
+      all_tables = database.get_all_table_names_in_schema(schema_name)
+      columns_list_1 = get_table_metadata(database, all_tables[1].table, schema_name)
+      return self.response(200, message="hello database_metadata")
 
     @expose("/<int:pk>/schemas/")
     @protect()
