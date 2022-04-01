@@ -127,6 +127,7 @@ MODEL_API_RW_METHOD_PERMISSION_MAP = {
     "function_names": "read",
     "available": "read",
     "get_data": "read",
+    "schemas_greeting": "read"
 }
 
 EXTRA_FORM_DATA_APPEND_KEYS = {

@@ -96,6 +96,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "function_names",
         "available",
         "validate_parameters",
+        "schemas_greeting"
     }
     resource_name = "database"
     class_permission_name = "Database"
@@ -405,6 +406,18 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                 exc_info=True,
             )
             return self.response_422(message=str(ex))
+
+    @expose("/<int:pk>/schemas_greeting/<schema_name>")
+    @protect()
+    @safe
+    @rison(database_schemas_query_schema)
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}" f".schemas",
+        log_to_statsd=False,
+    )
+    def schemas_greeting(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
+       return self.response(200, message="Hello")
 
     @expose("/<int:pk>/schemas/")
     @protect()
