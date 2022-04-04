@@ -28,7 +28,19 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from marshmallow import ValidationError
 from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 
-from superset import app, event_logger
+from superset import (
+    app,
+    appbuilder,
+    conf,
+    db,
+    event_logger,
+    is_feature_enabled,
+    results_backend,
+    results_backend_use_msgpack,
+    sql_lab,
+    viz,
+)
+from superset.utils import core as utils, csv
 from superset.commands.importers.exceptions import NoValidFilesFoundError
 from superset.commands.importers.v1.utils import get_contents_from_bundle
 from superset.constants import MODEL_API_RW_METHOD_PERMISSION_MAP, RouteMethod
@@ -72,12 +84,17 @@ from superset.extensions import security_manager
 from superset.models.core import Database
 from superset.typing import FlaskResponse
 from superset.utils.core import error_msg_from_exception
+from superset.views.base import json_error_response, json_success
 from superset.views.base_api import (
     BaseSupersetModelRestApi,
     requires_form_data,
     requires_json,
     statsd_metrics,
 )
+import urllib.request
+
+from superset.views.core import Superset
+
 
 logger = logging.getLogger(__name__)
 
@@ -432,11 +449,48 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         action=lambda self, *args, **kwargs: f"{self.__class__.__name__}" f".database_metadata",
         log_to_statsd=False,
     )
-    def database_metadata(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
+    def database_metadata(
+      self, pk: int, schema_name: str, **kwargs: Any
+      ) -> FlaskResponse:
+      """Database metadata
+        ---
+        get:
+          description: Endpoint to fetch database metadata including tables & columns of each table
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+            description: The database id
+          - in: path
+            schema:
+              type: string
+            name: schema_name
+            description: Table schema
+          responses:
+            200:
+              description: JSON database metadata
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/TableMetadataResponseSchema"
+            400:
+              $ref: '#/components/responses/400'
+            401:
+              $ref: '#/components/responses/401'
+            404:
+              $ref: '#/components/responses/404'
+            422:
+              $ref: '#/components/responses/422'
+            500:
+              $ref: '#/components/responses/500'
+        """
       database: Database = self.datamodel.get(pk)
-      all_tables = database.get_all_table_names_in_schema(schema_name)
-      columns_list_1 = get_table_metadata(database, all_tables[1].table, schema_name)
-      return self.response(200, message="hello database_metadata")
+      database_tables_metadata = self.get_table_list(self,pk, schema_name, 'undefined')
+      if(database_tables_metadata != 'Not found'):
+        for tb in database_tables_metadata["options"]:
+          tb["columns"] = get_table_metadata(database, tb["value"], schema_name)["columns"]
+      return json_success(json.dumps(database_tables_metadata))
 
     @expose("/<int:pk>/schemas/")
     @protect()
@@ -1071,3 +1125,122 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         command = ValidateDatabaseParametersCommand(g.user, payload)
         command.run()
         return self.response(200, message="OK")
+
+
+    #Method to fetch the list of tables for given database
+    @staticmethod
+    def get_table_list(self,  db_id: int,
+        schema: str,
+        substr: str,
+        force_refresh: str = "false",
+        exact_match: str = "false",):
+
+      # Guarantees database filtering by security access
+      query = db.session.query(Database)
+      query = DatabaseFilter("id", SQLAInterface(Database, db.session)).apply(
+            query, None
+        )
+      database = query.filter_by(id=db_id).one_or_none()
+      if not database:
+        return []
+
+      force_refresh_parsed = force_refresh.lower() == "true"
+      exact_match_parsed = exact_match.lower() == "true"
+      schema_parsed = utils.parse_js_uri_path_item(schema, eval_undefined=True)
+      substr_parsed = utils.parse_js_uri_path_item(substr, eval_undefined=True)
+
+      if schema_parsed:
+          tables = (
+              database.get_all_table_names_in_schema(
+                  schema=schema_parsed,
+                  force=force_refresh_parsed,
+                  cache=database.table_cache_enabled,
+                  cache_timeout=database.table_cache_timeout,
+              )
+              or []
+          )
+          views = (
+              database.get_all_view_names_in_schema(
+                  schema=schema_parsed,
+                  force=force_refresh_parsed,
+                  cache=database.table_cache_enabled,
+                  cache_timeout=database.table_cache_timeout,
+              )
+              or []
+          )
+      else:
+          tables = database.get_all_table_names_in_database(
+              cache=True, force=False, cache_timeout=24 * 60 * 60
+          )
+          views = database.get_all_view_names_in_database(
+              cache=True, force=False, cache_timeout=24 * 60 * 60
+          )
+      tables = security_manager.get_datasources_accessible_by_user(
+          database, tables, schema_parsed
+      )
+      views = security_manager.get_datasources_accessible_by_user(
+          database, views, schema_parsed
+      )
+
+      def get_datasource_label(ds_name: utils.DatasourceName) -> str:
+          return (
+              ds_name.table if schema_parsed else f"{ds_name.schema}.{ds_name.table}"
+          )
+
+      def is_match(src: str, target: utils.DatasourceName) -> bool:
+          target_label = get_datasource_label(target)
+          if exact_match_parsed:
+              return src == target_label
+          return src in target_label
+
+      if substr_parsed:
+          tables = [tn for tn in tables if is_match(substr_parsed, tn)]
+          views = [vn for vn in views if is_match(substr_parsed, vn)]
+
+      if not schema_parsed and database.default_schemas:
+          user_schemas = (
+              [g.user.email.split("@")[0]] if hasattr(g.user, "email") else []
+          )
+          valid_schemas = set(database.default_schemas + user_schemas)
+
+          tables = [tn for tn in tables if tn.schema in valid_schemas]
+          views = [vn for vn in views if vn.schema in valid_schemas]
+
+      max_items = app.config["MAX_TABLE_NAMES"] or len(tables)
+      total_items = len(tables) + len(views)
+      max_tables = len(tables)
+      max_views = len(views)
+      if total_items and substr_parsed:
+          max_tables = max_items * len(tables) // total_items
+          max_views = max_items * len(views) // total_items
+
+      dataset_tables = {table.name: table for table in database.tables}
+
+      table_options = [
+          {
+              "value": tn.table,
+              "schema": tn.schema,
+              "label": get_datasource_label(tn),
+              "title": get_datasource_label(tn),
+              "type": "table",
+              "extra": dataset_tables[f"{tn.schema}.{tn.table}"].extra_dict
+              if (f"{tn.schema}.{tn.table}" in dataset_tables)
+              else None,
+          }
+          for tn in tables[:max_tables]
+      ]
+      table_options.extend(
+          [
+              {
+                  "value": vn.table,
+                  "schema": vn.schema,
+                  "label": get_datasource_label(vn),
+                  "title": get_datasource_label(vn),
+                  "type": "view",
+              }
+              for vn in views[:max_views]
+          ]
+      )
+      table_options.sort(key=lambda value: value["label"])
+      payload = {"tableLength": len(tables) + len(views), "options": table_options}
+      return payload
