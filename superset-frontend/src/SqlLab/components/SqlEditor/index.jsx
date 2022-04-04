@@ -83,6 +83,7 @@ const INITIAL_SOUTH_PERCENT = 70;
 const SET_QUERY_EDITOR_SQL_DEBOUNCE_MS = 2000;
 const VALIDATION_DEBOUNCE_MS = 600;
 const WINDOW_RESIZE_THROTTLE_MS = 100;
+var getSelectedTableData = [];
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -485,6 +486,9 @@ class SqlEditor extends React.PureComponent {
   ctasChanged(event) {
     this.setState({ ctas: event.target.value });
   }
+  getSelItem(){
+    getSelectedTableData = JSON.parse(sessionStorage.getItem("selectedTableData"));
+  }
 
   queryPane() {
     const hotkeys = this.getHotkeyConfig();
@@ -506,6 +510,40 @@ class SqlEditor extends React.PureComponent {
         onDragStart={this.onResizeStart}
         onDragEnd={this.onResizeEnd}
       >
+        <div className='newSectionWraper'>
+          <div className='newSection'>
+            <div className='newSectionLeft positionRelative'>
+              <span className='positionAbsolute' ><i onClick={() => this.getSelItem()} className="fa fa-plus-circle cursor-pointer" /></span>
+              <h4>Selected Dimensions</h4>
+              <div className='leftInnerBody borderBox'>
+                <ul>
+                  {getSelectedTableData.map((item, index) => {
+                    return (
+                      <li key={index}>
+                        <div className="tableSection">
+                          <span>{item.text}</span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+            <div className='newSectionRight positionRelative'>
+              <span className='positionAbsolute'><i className="fa fa-plus-circle cursor-pointer" /></span>
+              <h4>Selected Measures</h4>
+              <div className='rightInnerBody borderBox'>
+                <ul><li>source.code</li></ul>
+              </div>
+            </div>
+
+          </div>
+          <div className='conditionBox'>
+            <h4>Conditions</h4>
+            <div className='borderBox'></div>
+          </div>
+        </div>
+        
         <div ref={this.northPaneRef} className="north-pane">
           <AceEditorWrapper
             actions={this.props.actions}

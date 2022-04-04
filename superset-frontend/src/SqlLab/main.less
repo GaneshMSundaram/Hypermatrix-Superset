@@ -295,7 +295,43 @@ div.Workspace {
     flex: 1 1 auto;
     padding-left: 10px;
     overflow-y: none;
-    overflow-x: scroll;
+    // overflow-x: scroll;
+  }
+  .newSection{
+    display: flex;
+  }
+  .newSection > div{
+    width: 48%;
+  }
+  .borderBox{
+    border: 1px #ccc solid;
+    padding: 10px;
+  }
+  .newSectionRight{
+    margin-left: 5%;
+  }
+  .positionRelative{
+    position: relative;
+  }
+  .newSectionRight .positionAbsolute{
+    position: absolute;
+    left: -40px;
+    top: 57px;
+  }
+  .conditionBox{
+    margin-top: 15px;
+  }
+  .newSectionLeft .positionAbsolute{
+    position: absolute;
+    left: -30px;
+    top: 43px;
+    z-index: 9;
+  }
+  .newSection i.fa.fa-plus-circle {
+    font-size: 23px;
+}
+  .cursor-pointer{
+    cursor: pointer;
   }
 
   .schemaPane-enter-done,
