@@ -34,6 +34,7 @@ import RefreshLabel from 'src/components/RefreshLabel';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import WarningIconWithTooltip from 'src/components/WarningIconWithTooltip';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
+const tableItemArray: (TableOption | undefined)[] = [];
 
 const TableSelectorWrapper = styled.div`
   ${({ theme }) => `
@@ -240,6 +241,13 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     if (onTableChange && currentSchema) {
       onTableChange(table?.value, currentSchema);
     }
+    const findItem = tableItemArray.findIndex(e => e?.value === table?.value)
+    if (findItem !== -1) {
+      tableItemArray.splice(findItem, 1);
+    } else {
+      tableItemArray.push(table);
+    }
+    sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
   };
 
   const internalDbChange = (db: DatabaseObject) => {
@@ -297,21 +305,40 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     );
 
     const select = (
-      <Select
-        ariaLabel={t('Select table or type table name')}
-        disabled={disabled}
-        filterOption={handleFilterOption}
-        header={header}
-        labelInValue
-        lazyLoading={false}
-        loading={loadingTables}
-        name="select-table"
-        onChange={(table: TableOption) => internalTableChange(table)}
-        options={tableOptions}
-        placeholder={t('Select table or type table name')}
-        showSearch
-        value={currentTable}
+      // <Select
+      //   ariaLabel={t('Select table or type table name')}
+      //   disabled={disabled}
+      //   filterOption={handleFilterOption}
+      //   header={header}
+      //   labelInValue
+      //   lazyLoading={false}
+      //   loading={loadingTables}
+      //   name="select-table"
+      //   onChange={(table: TableOption) => internalTableChange(table)}
+      //   options={tableOptions}
+      //   placeholder={t('Select table or type table name')}
+      //   showSearch
+      //   value={currentTable}
+      // />
+      <ul className="tablewrapper">
+        {tableOptions.map(({ value, label, text }, index) => {
+          return (
+            <li key={index}>
+                <div className="tableSection">
+                  <input
+                    type="checkbox"
+                    id={`custom-checkbox-${index}`}
+                    name={value}
+                    value={value}
+                    onChange={() => internalTableChange(tableOptions[index])}
       />
+                  <label htmlFor={`custom-checkbox-${index}`}>{text}</label>
+                </div>
+            </li>
+          );
+        })}
+        
+      </ul>
     );
 
     const refreshLabel = !formMode && !readOnly && (
