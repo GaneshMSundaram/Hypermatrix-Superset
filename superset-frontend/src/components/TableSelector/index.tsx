@@ -174,7 +174,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
   useEffect(() => {
     // reset selections
     if (database === undefined) {
-      setCurrentDatabase(undefined);
+      setCurrentDatabase(undefined); 
       setCurrentSchema(undefined);
       setCurrentTable(undefined);
     }
