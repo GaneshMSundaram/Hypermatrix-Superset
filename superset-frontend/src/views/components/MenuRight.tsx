@@ -86,41 +86,7 @@ const RightMenu = ({
   const canDashboard = findPermission('can_write', 'Dashboard', roles);
   const canChart = findPermission('can_write', 'Chart', roles);
   const showActionDropdown = canSql || canChart || canDashboard;
-  const dropdownItems: MenuObjectProps[] = [
-    {
-      label: t('Data'),
-      icon: 'fa-database',
-      childs: [
-        {
-          label: t('Connect database'),
-          name: GlobalMenuDataOptions.DB_CONNECTION,
-          perm: true,
-        },
-        {
-          label: t('Connect Google Sheet'),
-          name: GlobalMenuDataOptions.GOOGLE_SHEETS,
-          perm: HAS_GSHEETS_INSTALLED,
-        },
-        {
-          label: t('Upload CSV to database'),
-          name: 'Upload a CSV',
-          url: '/csvtodatabaseview/form',
-          perm: CSV_EXTENSIONS,
-        },
-        {
-          label: t('Upload columnar file to database'),
-          name: 'Upload a Columnar file',
-          url: '/columnartodatabaseview/form',
-          perm: COLUMNAR_EXTENSIONS,
-        },
-        {
-          label: t('Upload Excel file to database'),
-          name: 'Upload Excel',
-          url: '/exceltodatabaseview/form',
-          perm: EXCEL_EXTENSIONS,
-        },
-      ],
-    },
+  const dropdownItems: MenuObjectProps[] = [    
     {
       label: t('SQL query'),
       url: '/superset/sqllab?new=true',
@@ -233,12 +199,12 @@ const RightMenu = ({
           icon={<Icons.TriangleDown iconSize="xl" />}
         >
           {settings.map((section, index) => [
-            section.label == 'Security' ? null : (
+            section.label === 'Security' ? null : (
               <Menu.ItemGroup key={`${section.label}`} title={section.label}>
                 {section.childs?.map(child => {
                   if (typeof child !== 'string') {
                     if (
-                      section.label == 'Manage' &&
+                      section.label === 'Manage' &&
                       child.label !== 'Import Dashboards'
                     ) {
                       return null;
@@ -259,7 +225,6 @@ const RightMenu = ({
             ),
             index < settings.length - 1 && <Menu.Divider />,
           ])}
-
           {(navbarRight.version_string || navbarRight.version_sha) && [
             <Menu.Divider key="version-info-divider" />,
             <Menu.ItemGroup key="about-section" title={t('About')}>

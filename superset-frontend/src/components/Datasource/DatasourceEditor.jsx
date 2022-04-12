@@ -892,20 +892,19 @@ class DatasourceEditor extends React.PureComponent {
           </EditLockContainer>
         )}
         <div className="m-l-10 m-t-20 m-b-10">
-          {DATASOURCE_TYPES_ARR.map(type =>
-            type.key == 'physical' ? null : (
-              <Radio
-                key={type.key}
-                value={type.key}
-                inline
-                onChange={this.onDatasourceTypeChange.bind(this, type.key)}
-                checked={this.state.datasourceType === type.key}
-                disabled={!this.state.isEditMode}
-              >
-                {type.label}
-              </Radio>
-            ),
-          )}
+          {DATASOURCE_TYPES_ARR.map(type => 
+            type.key === 'physical' ? null : (
+            <Radio
+              key={type.key}
+              value={type.key}
+              inline
+              onChange={this.onDatasourceTypeChange.bind(this, type.key)}
+              checked={this.state.datasourceType === type.key}
+              disabled={!this.state.isEditMode}
+            >
+              {type.label}
+            </Radio>
+          ))}
         </div>
         <hr />
         <Fieldset item={datasource} onChange={this.onDatasourceChange} compact>
@@ -1230,94 +1229,6 @@ class DatasourceEditor extends React.PureComponent {
         >
           <Tabs.TabPane key={0} tab={t('Source')}>
             {this.renderSourceFieldset(theme)}
-          </Tabs.TabPane>
-          <Tabs.TabPane
-            tab={
-              <CollectionTabTitle
-                collection={sortedMetrics}
-                title={t('Metrics')}
-              />
-            }
-            key={1}
-          >
-            {this.renderMetricCollection()}
-          </Tabs.TabPane>
-          <Tabs.TabPane
-            tab={
-              <CollectionTabTitle
-                collection={this.state.databaseColumns}
-                title={t('Columns')}
-              />
-            }
-            key={2}
-          >
-            <StyledColumnsTabWrapper>
-              <ColumnButtonWrapper>
-                <span className="m-t-10 m-r-10">
-                  <Button
-                    buttonSize="small"
-                    buttonStyle="tertiary"
-                    onClick={this.syncMetadata}
-                    className="sync-from-source"
-                    disabled={this.state.isEditMode}
-                  >
-                    <i className="fa fa-database" />{' '}
-                    {t('Sync columns from source')}
-                  </Button>
-                </span>
-              </ColumnButtonWrapper>
-              <ColumnCollectionTable
-                className="columns-table"
-                columns={this.state.databaseColumns}
-                datasource={datasource}
-                onColumnsChange={databaseColumns =>
-                  this.setColumns({ databaseColumns })
-                }
-                onDatasourceChange={this.onDatasourceChange}
-              />
-              {this.state.metadataLoading && <Loading />}
-            </StyledColumnsTabWrapper>
-          </Tabs.TabPane>
-          <Tabs.TabPane
-            tab={
-              <CollectionTabTitle
-                collection={this.state.calculatedColumns}
-                title={t('Calculated columns')}
-              />
-            }
-            key={3}
-          >
-            <StyledColumnsTabWrapper>
-              <ColumnCollectionTable
-                columns={this.state.calculatedColumns}
-                onColumnsChange={calculatedColumns =>
-                  this.setColumns({ calculatedColumns })
-                }
-                onDatasourceChange={this.onDatasourceChange}
-                datasource={datasource}
-                editableColumnName
-                showExpression
-                allowAddItem
-                allowEditDataType
-                itemGenerator={() => ({
-                  column_name: '<new column>',
-                  filterable: true,
-                  groupby: true,
-                  expression: '<enter SQL expression here>',
-                  __expanded: true,
-                })}
-              />
-            </StyledColumnsTabWrapper>
-          </Tabs.TabPane>
-          <Tabs.TabPane key={4} tab={t('Settings')}>
-            <Row gutter={16}>
-              <Col xs={24} md={12}>
-                <FormContainer>{this.renderSettingsFieldset()}</FormContainer>
-              </Col>
-              <Col xs={24} md={12}>
-                <FormContainer>{this.renderAdvancedFieldset()}</FormContainer>
-              </Col>
-            </Row>
           </Tabs.TabPane>
         </StyledTableTabs>
       </DatasourceContainer>
