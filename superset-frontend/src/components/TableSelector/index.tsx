@@ -187,7 +187,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       const forceRefresh = refresh !== previousRefresh;
       // TODO: Would be nice to add pagination in a follow-up. Needs endpoint changes.
       const endpoint = encodeURI(
-        `/superset/tables/${currentDatabase.id}/${encodedSchema}/undefined/${forceRefresh}/`,
+        `/api/v1/database/${currentDatabase.id}/database_metadata/${encodedSchema}/`,
       );
 
       if (previousRefresh !== refresh) {
@@ -230,25 +230,61 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
   function renderSelectRow(select: ReactNode, refreshBtn: ReactNode) {
     return (
       <div className="section">
-        <span className="select">{select}</span>
+        <span className="select tableColumn">{select}</span>
         <span className="refresh">{refreshBtn}</span>
       </div>
     );
   }
-
-  const internalTableChange = (table?: TableOption) => {
+  const removeDisabled = () => {
+    var element = document.getElementById("arrowIcon1");
+   element.classList.remove("fa-disabled");
+   var element2 = document.getElementById("arrowIcon3");
+   element2.classList.remove("fa-disabled");
+  }
+  const internalTableChange = (evt: any, table?: TableOption) => {
     setCurrentTable(table);
     if (onTableChange && currentSchema) {
       onTableChange(table?.value, currentSchema);
     }
-    const findItem = tableItemArray.findIndex(e => e?.value === table?.value)
-    if (findItem !== -1) {
-      tableItemArray.splice(findItem, 1);
+    var checkboxes = document.getElementsByName(`${table.text}`);
+ 
+   if (evt.target.checked) {
+     for (var i = 0; i < checkboxes.length; i++) { 
+       checkboxes[i].checked = true;
+     }
+   } else {
+     for (var i = 0; i < checkboxes.length; i++) {
+       checkboxes[i].checked = false;
+     }
+   }  
+   removeDisabled();  
+  };  
+  const tableSelection = (evt: any, index: number, table?: TableOption) => {   
+    var totalCheckbox = document.querySelectorAll(`input[name=${CSS.escape(table.text)}]`).length;
+    var totalChecked = document.querySelectorAll(`input[name=${CSS.escape(table.text)}]:checked`).length;
+
+    // When total options equals to total checked option
+    if(totalCheckbox == totalChecked) {
+       document.getElementsByName("showhide")[index].checked=true;
     } else {
-      tableItemArray.push(table);
+       document.getElementsByName("showhide")[index].checked=false;
     }
+    // Data session storage
+    if (evt.target.checked === true) {      
+        var newTable = {
+          table: table?.text,
+          columns: evt.target.value
+        }
+        tableItemArray.push(newTable);
+    }else{
+      const findItem = tableItemArray.findIndex(e => e?.columns === evt.target.value)
+      if (findItem !== -1) {
+        tableItemArray.splice(findItem, 1);
+      }
+    }
+    removeDisabled();
     sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
-  };
+  }
 
   const internalDbChange = (db: DatabaseObject) => {
     setCurrentDatabase(db);
@@ -321,23 +357,42 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       //   value={currentTable}
       // />
       <ul className="tablewrapper">
-        {tableOptions.map(({ value, label, text }, index) => {
+        {tableOptions.map((item, index) => {
           return (
             <li key={index}>
-                <div className="tableSection">
-                  <input
-                    type="checkbox"
-                    id={`custom-checkbox-${index}`}
-                    name={value}
-                    value={value}
-                    onChange={() => internalTableChange(tableOptions[index])}
-      />
-                  <label htmlFor={`custom-checkbox-${index}`}>{text}</label>
-                </div>
+              <div className="tableSection">
+                <input
+                  type="checkbox"
+                  className='leftCheckBox'
+                  id={`custom-checkbox-${index}`}
+                  name="showhide"
+                  value={item.value}
+                  onChange={() => internalTableChange(event, item)}
+                />
+                <label htmlFor={`custom-checkbox-${index}`}>{item.text}</label>
+              </div>
+              <ul>
+              {item.label.props.table.columns.map((colData: any, colIndex: any) => {
+                return (
+                  <li key={colIndex}>
+                    <div className="tableSection">
+                      <input
+                        type="checkbox"
+                        className='leftCheckBox'
+                        id={`column-checkbox-${colData.name}`}
+                        name={item.value}
+                        value= {`${colData.name}`}
+                        onChange={() => tableSelection(event, index, tableOptions[index])}
+                      />
+                      <label htmlFor={`column-checkbox-${colData.name}`}>{colData.name}</label>
+                    </div></li>
+                )
+              })}
+              </ul>
             </li>
           );
         })}
-        
+
       </ul>
     );
 
