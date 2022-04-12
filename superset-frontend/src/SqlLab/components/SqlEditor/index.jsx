@@ -84,6 +84,11 @@ const SET_QUERY_EDITOR_SQL_DEBOUNCE_MS = 2000;
 const VALIDATION_DEBOUNCE_MS = 600;
 const WINDOW_RESIZE_THROTTLE_MS = 100;
 var getSelectedTableData = [];
+var getSessionData = [];
+var getConditionsData = []
+var getSelectedMeasureData = [];
+var measureItems = [];
+var removeItems = [];
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -486,9 +491,62 @@ class SqlEditor extends React.PureComponent {
   ctasChanged(event) {
     this.setState({ ctas: event.target.value });
   }
-  getSelItem(){
-    getSelectedTableData = JSON.parse(sessionStorage.getItem("selectedTableData"));
+  getDimesnsion(event){
+    this.getSelItem();
+    getSelectedTableData = getSessionData;
+    this.clearCheckboxes();
+    this.disableArrow(event);
+    this.removeDisabled();
   }
+  getMeasures(event){
+    this.getMeasureItems();
+    this.disableArrow(event);
+    this.removeItems();
+  }
+  getMeasureItems(){
+    measureItems = [...document.getElementsByClassName('active')];
+    
+  }
+  removeItems(){
+    removeItems = [...document.getElementsByClassName('active')];
+    removeItems.forEach(item => {
+      item.remove();
+    });
+  }
+  getSelItem(){
+    getSessionData = JSON.parse(sessionStorage.getItem("selectedTableData"));    
+  }
+  getConditions(event){
+    this.getSelItem();
+    getConditionsData = getSessionData;
+    this.clearCheckboxes();
+    this.disableArrow(event);
+    document.getElementById("arrowIcon1").classList.add("fa-disabled");
+  }
+  addToMeasures(event,item){
+    this.addActive(event);
+
+  }
+  clearCheckboxes(){
+    var allCheckboxes = document.getElementsByClassName("leftCheckBox");
+    for (var i = 0; i < allCheckboxes.length; i++) {
+      allCheckboxes[i].checked = false;
+    }
+  }
+  disableArrow(event) {    
+    var element = event.target;
+    element.classList.add("fa-disabled");
+  }
+  removeDisabled = () => {
+    var element = document.getElementById("arrowIcon2");
+    element.classList.remove("fa-disabled");
+  }
+  addActive(event){
+    var _this = event.target.parentNode.parentNode;
+    _this.classList.toggle("active")
+  }
+  
+  
 
   queryPane() {
     const hotkeys = this.getHotkeyConfig();
@@ -513,7 +571,7 @@ class SqlEditor extends React.PureComponent {
         <div className='newSectionWraper'>
           <div className='newSection'>
             <div className='newSectionLeft positionRelative'>
-              <span className='positionAbsolute' ><i onClick={() => this.getSelItem()} className="fa fa-plus-circle cursor-pointer" /></span>
+              <span className='positionAbsolute' ><i id='arrowIcon1' onClick={() => this.getDimesnsion(event)} className="fa fa-disabled fa-plus-circle cursor-pointer" /></span>
               <h4>Selected Dimensions</h4>
               <div className='leftInnerBody borderBox'>
                 <ul>
@@ -521,8 +579,10 @@ class SqlEditor extends React.PureComponent {
                     return (
                       <li key={index}>
                         <div className="tableSection">
-                          <span>{item.text}</span>
+                          <span id={`selectedItem_${index}`} onClick={() => this.addToMeasures(event,item)} className='contentSection'>{item.table}.{item.columns}</span>
+                          <span className='fa fa-times cursor-pointer' onClick={() => this.removeItems()}></span>
                         </div>
+                        
                       </li>
                     );
                   })}
@@ -530,17 +590,47 @@ class SqlEditor extends React.PureComponent {
               </div>
             </div>
             <div className='newSectionRight positionRelative'>
-              <span className='positionAbsolute'><i className="fa fa-plus-circle cursor-pointer" /></span>
+              <span className='positionAbsolute'><i id='arrowIcon2' onClick={() => this.getMeasures(event)} className="fa fa-plus-circle fa-disabled cursor-pointer" /></span>
               <h4>Selected Measures</h4>
               <div className='rightInnerBody borderBox'>
-                <ul><li>source.code</li></ul>
+              <ul>
+                  {measureItems.map((item, index) => {
+                    return (
+                      <li key={index}>
+                        <div className="tableSection">
+                          <span id={`selectedItem_${index}`} className='contentSection'>{item.innerText}</span>
+                          <span className='fa fa-times cursor-pointer'></span>
+                        </div>
+                        
+                      </li>
+                    );
+                  })}
+                </ul>              
               </div>
             </div>
 
           </div>
           <div className='conditionBox'>
+            <div className='positionRelative'>
+              <span className='positionAbsolute'><i id='arrowIcon3' onClick={() => this.getConditions(event)} className="fa fa-disabled fa-plus-circle cursor-pointer" /></span>
+            </div>
             <h4>Conditions</h4>
-            <div className='borderBox'></div>
+            <div className='borderBox'>
+              <ul>
+              {getConditionsData.map((item, index) => {
+                    return (
+                      <li key={index}>
+                        <div className="row">
+                          <select><option>And</option><option>Or</option><option>Not</option></select>
+                          <input type='text' defaultValue={`${item.table}.${item.columns}`}/>
+                          <select><option>Equals to</option><option>Less than</option><option>Greater than</option></select>
+                        <input type='text'/>
+                        </div>                        
+                      </li>
+                    );
+                  })}
+              </ul>
+            </div>
           </div>
         </div>
         

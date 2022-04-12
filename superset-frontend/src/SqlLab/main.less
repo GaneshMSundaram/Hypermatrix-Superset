@@ -316,24 +316,63 @@ div.Workspace {
   .newSectionRight .positionAbsolute{
     position: absolute;
     left: -40px;
-    top: 57px;
+    top: 43px;
   }
   .conditionBox{
     margin-top: 15px;
   }
-  .newSectionLeft .positionAbsolute{
+  .positionAbsolute{
     position: absolute;
     left: -30px;
     top: 43px;
     z-index: 9;
   }
-  .newSection i.fa.fa-plus-circle {
+  .newSectionWraper i.fa.fa-plus-circle {
     font-size: 23px;
 }
   .cursor-pointer{
     cursor: pointer;
   }
-
+  .contentSection{
+    width: 97%;
+    display: inline-block;
+    padding: 5px;
+    margin-right: 5px;
+  }
+  li.active .contentSection,li.active:hover .contentSection{
+    background-color: #bcd6df;
+  }
+  .contentSection:hover{
+    background-color: #eee;
+  }
+  .tablewrapper{
+    padding: 0;
+    ul{
+      padding-left: 24px;
+    }
+  }
+  .fa-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .tableColumn{
+    border: 1px solid #d9d9d9;
+    padding: 11px;
+    max-height: 460px;
+    overflow-y: scroll;
+  }
+  .tableSection label{
+    margin: 0 0 0 5px;
+  }
+  .leftInnerBody ul, .rightInnerBody ul{
+    padding-left: 0;
+    .tableSection{
+      padding: 1px 0;
+    }
+  }
+  li {
+    list-style: none;
+  }
   .schemaPane-enter-done,
   .schemaPane-exit {
     transform: translateX(0);
