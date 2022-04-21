@@ -290,7 +290,13 @@ div.Workspace {
     max-width: 400px;
     transition: transform @timing-normal ease-in-out;
   }
-
+  select {
+    padding: 3px 0;
+  }
+  .textSection{
+    width: 80%;
+    display: inline-block;
+  }
   .queryPane {
     flex: 1 1 auto;
     padding-left: 10px;
@@ -301,11 +307,14 @@ div.Workspace {
     display: flex;
   }
   .newSection > div{
-    width: 48%;
+    width: 46%;
   }
   .borderBox{
     border: 1px #ccc solid;
     padding: 10px;
+    min-height: 150px;
+    max-height: 200px;
+    overflow-y: scroll;
   }
   .newSectionRight{
     margin-left: 5%;
@@ -315,8 +324,8 @@ div.Workspace {
   }
   .newSectionRight .positionAbsolute{
     position: absolute;
-    left: -40px;
-    top: 43px;
+    left: -46px;
+    top: 80px;
   }
   .conditionBox{
     margin-top: 15px;
@@ -327,7 +336,13 @@ div.Workspace {
     top: 43px;
     z-index: 9;
   }
-  .newSectionWraper i.fa.fa-plus-circle {
+  .removeSection{
+    position: absolute;
+    right: -40px;
+    top: 36px;
+    font-size: 22px;
+  }
+  .newSectionWraper i.fa {
     font-size: 23px;
 }
   .cursor-pointer{

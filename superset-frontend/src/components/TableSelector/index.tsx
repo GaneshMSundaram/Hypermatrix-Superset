@@ -34,7 +34,7 @@ import RefreshLabel from 'src/components/RefreshLabel';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import WarningIconWithTooltip from 'src/components/WarningIconWithTooltip';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
-const tableItemArray: (TableOption | undefined)[] = [];
+const tableItemArray: (TableOption[]) = [];
 
 const TableSelectorWrapper = styled.div`
   ${({ theme }) => `
@@ -270,17 +270,23 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
        document.getElementsByName("showhide")[index].checked=false;
     }
     // Data session storage
-    if (evt.target.checked === true) {      
+    // if (evt.target.checked === true) {      
         var newTable = {
           table: table?.text,
           columns: evt.target.value
         }
-        tableItemArray.push(newTable);
-    }else{
+    
       const findItem = tableItemArray.findIndex(e => e?.columns === evt.target.value)
       if (findItem !== -1) {
+        // return
         tableItemArray.splice(findItem, 1);
+      }else{
+        let arrowCheck = sessionStorage.getItem('arrowClicked');
+        if(arrowCheck === 'true'){
+          tableItemArray.length = 0;
       }
+        sessionStorage.setItem('arrowClicked','false');
+        tableItemArray.push(newTable);
     }
     removeDisabled();
     sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));

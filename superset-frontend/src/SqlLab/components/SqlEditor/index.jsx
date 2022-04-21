@@ -83,11 +83,6 @@ const INITIAL_SOUTH_PERCENT = 70;
 const SET_QUERY_EDITOR_SQL_DEBOUNCE_MS = 2000;
 const VALIDATION_DEBOUNCE_MS = 600;
 const WINDOW_RESIZE_THROTTLE_MS = 100;
-var getSelectedTableData = [];
-var getSessionData = [];
-var getConditionsData = []
-var getSelectedMeasureData = [];
-var measureItems = [];
 var removeItems = [];
 
 const appContainer = document.getElementById('app');
@@ -174,6 +169,9 @@ class SqlEditor extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      getSelectedTableData : [],
+      measureItems : [],
+      getConditionsData: [],
       autorun: props.queryEditor.autorun,
       ctas: '',
       northPercent: props.queryEditor.northPercent || INITIAL_NORTH_PERCENT,
@@ -491,20 +489,26 @@ class SqlEditor extends React.PureComponent {
   ctasChanged(event) {
     this.setState({ ctas: event.target.value });
   }
-  getDimesnsion(event){
-    this.getSelItem();
-    getSelectedTableData = getSessionData;
+  getDimesnsion = (event) => {    
+    const getSessionData = JSON.parse(sessionStorage.getItem("selectedTableData"));    
+    this.setState({
+      getSelectedTableData:getSessionData
+    })
     this.clearCheckboxes();
     this.disableArrow(event);
     this.removeDisabled();
+    document.getElementById("arrowIcon3").classList.add("fa-disabled");
   }
-  getMeasures(event){
+  getMeasures = (event) => {
     this.getMeasureItems();
     this.disableArrow(event);
     this.removeItems();
   }
   getMeasureItems(){
-    measureItems = [...document.getElementsByClassName('active')];
+    const activeData = [...document.getElementsByClassName('active')];
+    this.setState({
+      measureItems:activeData
+    })
     
   }
   removeItems(){
@@ -513,25 +517,23 @@ class SqlEditor extends React.PureComponent {
       item.remove();
     });
   }
-  getSelItem(){
-    getSessionData = JSON.parse(sessionStorage.getItem("selectedTableData"));    
-  }
   getConditions(event){
-    this.getSelItem();
-    getConditionsData = getSessionData;
+    const getSessionData = JSON.parse(sessionStorage.getItem("selectedTableData"));    
+    this.setState({
+      getConditionsData:getSessionData
+    })
     this.clearCheckboxes();
     this.disableArrow(event);
     document.getElementById("arrowIcon1").classList.add("fa-disabled");
   }
-  addToMeasures(event,item){
-    this.addActive(event);
-
-  }
-  clearCheckboxes(){
+  
+  clearCheckboxes = () => {
     var allCheckboxes = document.getElementsByClassName("leftCheckBox");
     for (var i = 0; i < allCheckboxes.length; i++) {
       allCheckboxes[i].checked = false;
     }
+    sessionStorage.setItem("arrowClicked", 'true');
+
   }
   disableArrow(event) {    
     var element = event.target;
@@ -544,6 +546,47 @@ class SqlEditor extends React.PureComponent {
   addActive(event){
     var _this = event.target.parentNode.parentNode;
     _this.classList.toggle("active")
+  }
+  nullSelectionCheck = (event, index) => {
+    var sel = document.getElementById(`operator2_${index}`).value;
+    if(sel === 'Is null' || sel === 'Is not null'){
+      event.target.nextSibling.classList.add("hide");
+    }else{
+      event.target.nextSibling.classList.remove("hide");
+    }
+  }
+  generateQuery = () =>{
+    const payload = {
+      conditionData: [{
+          operator: "or",
+          table: 'FCC 2018 Survey',
+          columns: 'is_software_dev',
+          operator2: "equals to",
+          value: "groceries"
+      }, {
+          operator: "or",
+          table: 'FCC 2018 Survey',
+          columns: 'is_software_dev',
+          operator2: "equals to",
+          value: "groceries"
+      }],
+      measureData: [{
+          table: 'FCC 2018 Survey',
+          columns: 'is_software_dev',
+          operator: 'sum'
+      }, {
+          table: 'FCC 2018 Survey',
+          columns: 'is_software_dev',
+          operator: 'sum'
+      }],
+      dimensionData: [{
+          table: 'FCC 2018 Survey',
+          columns: 'is_software_dev'
+      }, {
+          table: 'FCC 2018 Survey',
+          columns: 'is_software_dev'
+      }]
+  }
   }
   
   
@@ -571,18 +614,17 @@ class SqlEditor extends React.PureComponent {
         <div className='newSectionWraper'>
           <div className='newSection'>
             <div className='newSectionLeft positionRelative'>
-              <span className='positionAbsolute' ><i id='arrowIcon1' onClick={() => this.getDimesnsion(event)} className="fa fa-disabled fa-plus-circle cursor-pointer" /></span>
+              <span className='positionAbsolute' ><i id='arrowIcon1' onClick={() => this.getDimesnsion(event)} className="fa fa-disabled fa-arrow-circle-right cursor-pointer" /></span>
               <h4>Selected Dimensions</h4>
+              <div className='removeSection'><span className='fa fa-times cursor-pointer' onClick={() => this.removeItems()}></span></div>
               <div className='leftInnerBody borderBox'>
                 <ul>
-                  {getSelectedTableData.map((item, index) => {
+                  {this.state.getSelectedTableData.map((item, index) => {
                     return (
                       <li key={index}>
                         <div className="tableSection">
-                          <span id={`selectedItem_${index}`} onClick={() => this.addToMeasures(event,item)} className='contentSection'>{item.table}.{item.columns}</span>
-                          <span className='fa fa-times cursor-pointer' onClick={() => this.removeItems()}></span>
+                          <span id={`selectedItem_${index}`} onClick={() => this.addActive(event)} className='contentSection'>{item.table}.{item.columns}</span>
                         </div>
-                        
                       </li>
                     );
                   })}
@@ -590,16 +632,24 @@ class SqlEditor extends React.PureComponent {
               </div>
             </div>
             <div className='newSectionRight positionRelative'>
-              <span className='positionAbsolute'><i id='arrowIcon2' onClick={() => this.getMeasures(event)} className="fa fa-plus-circle fa-disabled cursor-pointer" /></span>
+              <span className='positionAbsolute'><i id='arrowIcon2' onClick={() => this.getMeasures(event)} className="fa fa-arrow-circle-right fa-disabled cursor-pointer" /></span>
               <h4>Selected Measures</h4>
+              <div className='removeSection'><span className='fa fa-times cursor-pointer' onClick={() => this.removeItems()}></span></div>
               <div className='rightInnerBody borderBox'>
               <ul>
-                  {measureItems.map((item, index) => {
+                  {this.state.measureItems.map((item, index) => {
                     return (
                       <li key={index}>
-                        <div className="tableSection">
-                          <span id={`selectedItem_${index}`} className='contentSection'>{item.innerText}</span>
-                          <span className='fa fa-times cursor-pointer'></span>
+                        <div id={`selectedItem_${index}`} onClick={() => this.addActive(event)} className='contentSection'>
+                          <span className='textSection'>{item.innerText}</span>
+                          <select>
+                            <option value="sum">sum</option>
+                            <option value="avg">avg</option>
+                            <option value="max">max</option>
+                            <option value="min">min</option>
+                            <option value="count">count</option>
+                            <option value="count distinct">count distinct</option>
+                          </select>
                         </div>
                         
                       </li>
@@ -612,19 +662,31 @@ class SqlEditor extends React.PureComponent {
           </div>
           <div className='conditionBox'>
             <div className='positionRelative'>
-              <span className='positionAbsolute'><i id='arrowIcon3' onClick={() => this.getConditions(event)} className="fa fa-disabled fa-plus-circle cursor-pointer" /></span>
+              <span className='positionAbsolute'><i id='arrowIcon3' onClick={() => this.getConditions(event)} className="fa fa-disabled fa-arrow-circle-right cursor-pointer" /></span>
             </div>
             <h4>Conditions</h4>
             <div className='borderBox'>
               <ul>
-              {getConditionsData.map((item, index) => {
+              {
+                this.state.getConditionsData.map((item, index) => {
                     return (
                       <li key={index}>
-                        <div className="row">
-                          <select><option>And</option><option>Or</option><option>Not</option></select>
-                          <input type='text' defaultValue={`${item.table}.${item.columns}`}/>
-                          <select><option>Equals to</option><option>Less than</option><option>Greater than</option></select>
-                        <input type='text'/>
+                        <div className="conditionRow">
+                          <select id={`operator_${index}`}>
+                            <option value='and'>And</option>
+                            <option value='or'>Or</option>
+                            <option value='not'>Not</option>
+                          </select>
+                          <input id={`tableCol_${index}`} type='text' defaultValue={`${item.table}.${item.columns}`}/>
+                          <select id={`operator2_${index}`} onChange={() => this.nullSelectionCheck(event, index)}>
+                            <option value='equalsTo'>Equals to</option>
+                            <option value='notEqualsTo'>Not Equals to</option>
+                            <option value='greaterThan'>Greater than</option>
+                            <option value='lessThan'>Less than</option>
+                            <option value='isNull'>Is null</option>
+                            <option value='isNotNull'>Is not null</option>                            
+                          </select>                      
+                        <input id={`value_${index}`} type='text'/>
                         </div>                        
                       </li>
                     );
@@ -632,6 +694,7 @@ class SqlEditor extends React.PureComponent {
               </ul>
             </div>
           </div>
+          <div className='generateQuery'><button className='generateQueryBtn' onClick={() => this.generateQuery()}>Generate Query</button></div>
         </div>
         
         <div ref={this.northPaneRef} className="north-pane">
