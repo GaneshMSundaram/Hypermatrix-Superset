@@ -215,6 +215,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
           setTableOptions(options);
           setCurrentTable(currentTable);
           setLoadingTables(false);
+          expandCollapse();
           if (forceRefresh) addSuccessToast('List updated');
         })
         .catch(e => {
@@ -227,6 +228,22 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDatabase, currentSchema, onTablesLoad, refresh]);
 
+  const expandCollapse = () => {
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function () {
+        this.classList.toggle("activeTable");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+    }
+  }
   function renderSelectRow(select: ReactNode, refreshBtn: ReactNode) {
     return (
       <div className="section">
@@ -241,57 +258,77 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
    var element2 = document.getElementById("arrowIcon3");
    element2.classList.remove("fa-disabled");
   }
+
   const internalTableChange = (evt: any, table?: TableOption) => {
     setCurrentTable(table);
     if (onTableChange && currentSchema) {
       onTableChange(table?.value, currentSchema);
     }
+    arrowCheck();
     var checkboxes = document.getElementsByName(`${table.text}`);
- 
-   if (evt.target.checked) {
-     for (var i = 0; i < checkboxes.length; i++) { 
-       checkboxes[i].checked = true;
-     }
-   } else {
-     for (var i = 0; i < checkboxes.length; i++) {
-       checkboxes[i].checked = false;
-     }
-   }  
-   removeDisabled();  
-  };  
-  const tableSelection = (evt: any, index: number, table?: TableOption) => {   
+    if (evt.target.checked) {
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = true;
+        const item = checkboxes[i];
+        var newTable = {
+          table: table?.text,
+          columns: item.value
+        }
+        sessionStorage.setItem('arrowClicked', 'false');
+        const findItem = tableItemArray.findIndex(e => e?.columns === item.value && e?.table === table?.text)
+        if (findItem === -1) {
+          tableItemArray.push(newTable);
+        }
+      }
+    } else {
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = false;
+        const item = checkboxes[i];
+        const findItem = tableItemArray.findIndex(e => e?.columns === item.value && e?.table === table?.text)
+        if (findItem !== -1) {
+          tableItemArray.splice(findItem, 1);
+        }
+      }
+      
+    }
+    sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
+    removeDisabled();
+  }; 
+  const arrowCheck = () => {
+    let arrowCheck = sessionStorage.getItem('arrowClicked');
+      if (arrowCheck === 'true') {
+        tableItemArray.length = 0;
+      }
+  } 
+  const tableSelection = (evt: any, index: number, table?: TableOption) => {
     var totalCheckbox = document.querySelectorAll(`input[name=${CSS.escape(table.text)}]`).length;
     var totalChecked = document.querySelectorAll(`input[name=${CSS.escape(table.text)}]:checked`).length;
 
     // When total options equals to total checked option
-    if(totalCheckbox == totalChecked) {
-       document.getElementsByName("showhide")[index].checked=true;
+    if (totalCheckbox == totalChecked) {
+      document.getElementsByName("showhide")[index].checked = true;
+      
     } else {
-       document.getElementsByName("showhide")[index].checked=false;
+      document.getElementsByName("showhide")[index].checked = false;
     }
     // Data session storage
-    // if (evt.target.checked === true) {      
-        var newTable = {
-          table: table?.text,
-          columns: evt.target.value
-        }
-    
+    if (evt.target.checked === true) {
+      arrowCheck();
+      var newTable = {
+        table: table?.text,
+        columns: evt.target.value
+      }
+      sessionStorage.setItem('arrowClicked', 'false');
+      tableItemArray.push(newTable);
+    } else {
       const findItem = tableItemArray.findIndex(e => e?.columns === evt.target.value)
       if (findItem !== -1) {
-        // return
         tableItemArray.splice(findItem, 1);
-      }else{
-        let arrowCheck = sessionStorage.getItem('arrowClicked');
-        if(arrowCheck === 'true'){
-          tableItemArray.length = 0;
       }
-        sessionStorage.setItem('arrowClicked','false');
-        tableItemArray.push(newTable);
     }
     removeDisabled();
     sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
   }
-
   const internalDbChange = (db: DatabaseObject) => {
     setCurrentDatabase(db);
     if (onDbChange) {
@@ -347,26 +384,13 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     );
 
     const select = (
-      // <Select
-      //   ariaLabel={t('Select table or type table name')}
-      //   disabled={disabled}
-      //   filterOption={handleFilterOption}
-      //   header={header}
-      //   labelInValue
-      //   lazyLoading={false}
-      //   loading={loadingTables}
-      //   name="select-table"
-      //   onChange={(table: TableOption) => internalTableChange(table)}
-      //   options={tableOptions}
-      //   placeholder={t('Select table or type table name')}
-      //   showSearch
-      //   value={currentTable}
-      // />
       <ul className="tablewrapper">
         {tableOptions.map((item, index) => {
           return (
-            <li key={index}>
-              <div className="tableSection">
+            <li className='listContainer' key={index}>
+              <div className="tableSection collapsible">
+                <i className="fa fa-angle-up"></i>
+                <i className="fa fa-angle-down"></i>
                 <input
                   type="checkbox"
                   className='leftCheckBox'
@@ -377,7 +401,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
                 />
                 <label htmlFor={`custom-checkbox-${index}`}>{item.text}</label>
               </div>
-              <ul>
+              <ul className='columnList'>
               {item.label.props.table.columns.map((colData: any, colIndex: any) => {
                 return (
                   <li key={colIndex}>

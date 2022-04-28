@@ -290,8 +290,49 @@ div.Workspace {
     max-width: 400px;
     transition: transform @timing-normal ease-in-out;
   }
+  .collapsible{
+    .fa-angle-down {
+      display: none;
+    }    
+    .fa-angle-up {
+      display: block;
+    }        
+  }
+  .collapsible.activeTable {
+    .fa-angle-down {
+      display: block;
+    }  
+    .fa-angle-up {
+      display: none;
+    }
+  }
   select {
     padding: 3px 0;
+  }
+  .listContainer{
+    position: relative;
+    padding-left: 20px;
+    .fa{
+      position: absolute;
+      top: 2px;
+      left: 0px;
+      font-size: 18px;
+    }
+  }
+  .columnList{
+    display: none;
+  }  
+  .conditionRow{
+    position:relative;
+    margin-bottom:12px;
+    input {
+      margin: 0 10px;
+      width: 218px;
+    }
+    .removeSection{
+      top: 0;
+      right: 0;
+    }
   }
   .textSection{
     width: 80%;
@@ -329,6 +370,37 @@ div.Workspace {
   }
   .conditionBox{
     margin-top: 15px;
+    position: relative;
+    .borderBox{
+      width: 70%;
+      display: inline-block;
+      ul{
+        padding: 0;
+      }
+    }
+    .generateQuery{
+      width: 27%;
+      display: inline-block;
+      text-align: right;
+    }
+    .generateQueryBtn {
+      display: inline-block;
+      background: #4cb9e6;
+      border: none;
+      padding: 20px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      top: 10px;
+      position: absolute;
+      top: 75px;
+      right: 100px;
+      text-transform: uppercase;
+    }
+    .disabledBtn{
+      background: #ccc;
+    }
   }
   .positionAbsolute{
     position: absolute;
