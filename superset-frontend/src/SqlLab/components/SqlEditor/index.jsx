@@ -538,13 +538,26 @@ class SqlEditor extends React.PureComponent {
     event.target.parentNode.parentNode.parentNode.remove();
     
   }
-  removeItems(){
+  removeItems = () => {
+    let dimesnionArray = this.state.getSelectedTableData.slice();
     removeItems = [...document.getElementsByClassName('active')];
     removeItems.forEach(item => {
-      item.remove();
+      let tableCol = item.innerText.split('.');
+      let table = tableCol[0];
+      let column = tableCol[1];
+      
+      for (let index = 0; index < dimesnionArray.length; index++) {
+        const element = dimesnionArray[index];
+        if(element.columns === column && element.table === table){
+          dimesnionArray.splice(index, 1);          
+        }
+      }
+      this.setState({
+        getSelectedTableData: dimesnionArray
+      })
     });
     setTimeout(() => {
-      this.disableGenerateBtn();
+      this.disableGenerateBtn();      
     }, 100);
   }
   getConditions = (event) => {
@@ -662,10 +675,10 @@ class SqlEditor extends React.PureComponent {
     }
   }
   disableGenerateBtn = () =>{
-    let checkDimension = document.getElementById('dimensionList').innerHTML.trim() === '';
-    let checkMeasure = document.getElementById('measureList').innerHTML.trim() === '';
+    let checkDimension = document.getElementById('dimensionList').innerHTML.trim();
+    let checkMeasure = document.getElementById('measureList').innerHTML.trim();
     let getBtn = document.getElementById('generateQueryBtn');
-    if(checkDimension && checkMeasure){
+    if(checkDimension === '' && checkMeasure === ''){
       getBtn.classList.add("disabledBtn");
       getBtn.disabled= true;
     }else{
