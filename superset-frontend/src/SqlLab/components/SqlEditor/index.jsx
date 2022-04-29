@@ -86,8 +86,6 @@ const WINDOW_RESIZE_THROTTLE_MS = 100;
 const conditionDataArray = [];
 const measureDataArray = [];
 const dimensionDataArray = [];
-var removeItems = [];
-var finalData = [];
 
 
 const appContainer = document.getElementById('app');
@@ -507,9 +505,10 @@ class SqlEditor extends React.PureComponent {
       })
       this.clearCheckboxes();
       this.disableArrow(event);
-      // this.removeDisabled();
       let element = document.getElementById("arrowIcon3");
       element.classList.add("fa-disabled");
+      let element2 = document.getElementById("arrowIcon2");
+      element2.classList.add("fa-disabled");
       setTimeout(() => {
         this.disableGenerateBtn();
       }, 100);
@@ -520,19 +519,23 @@ class SqlEditor extends React.PureComponent {
     if (!checkArrowDisabled) {
       this.getMeasureItems();
       this.disableArrow(event);
+      this.clearCheckboxes();
       this.removeItems();
       setTimeout(() => {
         this.disableGenerateBtn();
       }, 100);
+      let element = document.getElementById("arrowIcon3");
+      element.classList.add("fa-disabled");
+      let element2 = document.getElementById("arrowIcon1");
+      element2.classList.add("fa-disabled");
     }
   }
   getMeasureItems = () => {
-    const activeData = [...document.getElementsByClassName('active')];
-    const finalActiveData = this.state.measureItems.concat(activeData);
-    this.setState({
-      measureItems:finalActiveData
-    })
-    
+      const getSessionData2 = JSON.parse(sessionStorage.getItem("selectedTableData"));
+      const finalConditionData = this.state.measureItems.concat(getSessionData2);
+      this.setState({
+        measureItems: finalConditionData
+      })
   }
   removeConditions = (event) =>{
     event.target.parentNode.parentNode.parentNode.remove();
@@ -540,7 +543,7 @@ class SqlEditor extends React.PureComponent {
   }
   removeItems = () => {
     let dimesnionArray = this.state.getSelectedTableData.slice();
-    removeItems = [...document.getElementsByClassName('active')];
+    let removeItems = [...document.getElementsByClassName('activeDim')];
     removeItems.forEach(item => {
       let tableCol = item.innerText.split('.');
       let table = tableCol[0];
@@ -560,6 +563,28 @@ class SqlEditor extends React.PureComponent {
       this.disableGenerateBtn();      
     }, 100);
   }
+  removeMeasures = () => {
+    let measureArray = this.state.measureItems.slice();
+    let removeMeasureItems = [...document.getElementsByClassName('activeMeasures')];
+    removeMeasureItems.forEach(item => {
+      let tableCol = item.firstChild.firstChild.innerText.split('.');
+      let table = tableCol[0];
+      let column = tableCol[1];
+      
+      for (let index = 0; index < measureArray.length; index++) {
+        const element = measureArray[index];
+        if(element.columns === column && element.table === table){
+          measureArray.splice(index, 1);          
+        }
+      }
+      this.setState({
+        measureItems: measureArray
+      })
+    });
+    setTimeout(() => {
+      this.disableGenerateBtn();      
+    }, 100);
+  }
   getConditions = (event) => {
     let checkArrowDisabled = document.getElementById('arrowIcon3').classList.contains('fa-disabled');
     if (!checkArrowDisabled) {
@@ -570,7 +595,10 @@ class SqlEditor extends React.PureComponent {
       })
       this.clearCheckboxes();
       this.disableArrow(event);
-      let element = document.getElementById("arrowIcon1").classList.add("fa-disabled");
+      let element = document.getElementById("arrowIcon2");
+      element.classList.add("fa-disabled");
+      let element2 = document.getElementById("arrowIcon1");
+      element2.classList.add("fa-disabled");
     }
   }
   
@@ -585,20 +613,17 @@ class SqlEditor extends React.PureComponent {
     var element = event.target;
     element.classList.add("fa-disabled");
   }
-  removeDisabled = () => {
-    var element = document.getElementById("arrowIcon2");
-    element.classList.remove("fa-disabled");
-  }
-  dimensionActive = (event) => {
-    let checkarrowDisable = document.getElementById('arrowIcon2').classList.contains('fa-disabled');
-    if(checkarrowDisable){
-      this.removeDisabled();
-    }
-    this.addActive(event);
-  } 
-  addActive(event) {
+  // removeDisabled = () => {
+  //   var element = document.getElementById("arrowIcon2");
+  //   element.classList.remove("fa-disabled");
+  // }  
+  addActiveDim(event) {
     var _this = event.target.parentNode.parentNode;
-    _this.classList.toggle("active")
+    _this.classList.toggle("activeDim")
+  }
+  addActiveMeasures(event) {
+    var _this = event.target.parentNode.parentNode;
+    _this.classList.toggle("activeMeasures")
   }
   nullSelectionCheck = (event, index) => {
     var sel = document.getElementById(`operator2_${index}`).value;
@@ -729,7 +754,7 @@ class SqlEditor extends React.PureComponent {
                     return (
                       <li key={index}>
                         <div id={`dimItem_${index}`} className="tableSection dimensionSel">
-                          <span id={`selectedItem_${index}`} onClick={() => this.dimensionActive(event)} className='contentSection'>{item.table}.{item.columns}</span>
+                          <span id={`selectedItem_${index}`} onClick={() => this.addActiveDim(event)} className='contentSection'>{item.table}.{item.columns}</span>
                         </div>
                       </li>
                     );
@@ -740,14 +765,14 @@ class SqlEditor extends React.PureComponent {
             <div className='newSectionRight positionRelative'>
               <span className='positionAbsolute'><i id='arrowIcon2' onClick={() => this.getMeasures(event)} className="fa fa-arrow-circle-right fa-disabled cursor-pointer"/></span>
               <h4>Selected Measures</h4>
-              <div className='removeSection'><span className='fa fa-times cursor-pointer' onClick={() => this.removeItems()}></span></div>
+              <div className='removeSection'><span className='fa fa-times cursor-pointer' onClick={() => this.removeMeasures()}></span></div>
               <div className='rightInnerBody borderBox'>
               <ul id='measureList'>
                   {this.state.measureItems.map((item, index) => {
                     return (
                       <li key={index}>
-                        <div id={`measure_${index}`} onClick={() => this.addActive(event)} className='selMeasures contentSection'>
-                          <span id={`selMeasure_${index}`} className='textSection'>{item.innerText}</span>
+                        <div id={`measure_${index}`} onClick={() => this.addActiveMeasures(event)} className='selMeasures contentSection'>
+                          <span id={`selMeasure_${index}`} className='textSection'>{item.table}.{item.columns}</span>
                           <select id={`selMeasureOperator_${index}`}>
                             <option value="sum">sum</option>
                             <option value="avg">avg</option>

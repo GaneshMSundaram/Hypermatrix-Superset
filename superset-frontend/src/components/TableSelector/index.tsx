@@ -253,10 +253,12 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     );
   }
   const removeDisabled = () => {
-    var element = document.getElementById("arrowIcon1");
+    let element = document.getElementById("arrowIcon1");
    element.classList.remove("fa-disabled");
-   var element2 = document.getElementById("arrowIcon3");
+   let element2 = document.getElementById("arrowIcon2");
    element2.classList.remove("fa-disabled");
+   let element3 = document.getElementById("arrowIcon3");
+   element3.classList.remove("fa-disabled");
   }
 
   const internalTableChange = (evt: any, table?: TableOption) => {
