@@ -520,7 +520,7 @@ class SqlEditor extends React.PureComponent {
       this.getMeasureItems();
       this.disableArrow(event);
       this.clearCheckboxes();
-      this.removeItems();
+      // this.removeItems();
       setTimeout(() => {
         this.disableGenerateBtn();
       }, 100);
