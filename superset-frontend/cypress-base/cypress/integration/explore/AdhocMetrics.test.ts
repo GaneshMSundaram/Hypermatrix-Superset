@@ -33,7 +33,7 @@ describe('AdhocMetrics', () => {
       .click();
 
     cy.get('[data-test=metrics]')
-      .contains('Drop columns/metrics here or click')
+      .find('[data-test="add-metric-button"]')
       .click();
 
     // Title edit for saved metrics is disabled - switch to Simple

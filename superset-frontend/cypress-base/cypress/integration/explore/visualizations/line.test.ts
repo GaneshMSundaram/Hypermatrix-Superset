@@ -43,7 +43,7 @@ describe('Visualization > Line', () => {
     cy.get('.text-danger').contains('Metrics');
 
     cy.get('[data-test=metrics]')
-      .contains('Drop columns/metrics here or click')
+      .find('[data-test="add-metric-button"]')
       .click();
 
     // Title edit for saved metrics is disabled - switch to Simple

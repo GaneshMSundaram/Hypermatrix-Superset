@@ -17,8 +17,8 @@
  * under the License.
  */
 import React from 'react';
-import Alert from 'src/components/Alert';
-import { t } from '@superset-ui/core';
+import { EmptyStateMedium } from 'src/components/EmptyState';
+import { t, styled } from '@superset-ui/core';
 import { Query } from 'src/SqlLab/types';
 import QueryTable from 'src/SqlLab/components/QueryTable';
 
@@ -34,6 +34,17 @@ interface QueryHistoryProps {
   displayLimit: number;
 }
 
+const StyledEmptyStateWrapper = styled.div`
+  height: 100%;
+  .ant-empty-image img {
+    margin-right: 28px;
+  }
+
+  p {
+    margin-right: 28px;
+  }
+`;
+
 const QueryHistory = ({ queries, actions, displayLimit }: QueryHistoryProps) =>
   queries.length > 0 ? (
     <QueryTable
@@ -44,7 +55,7 @@ const QueryHistory = ({ queries, actions, displayLimit }: QueryHistoryProps) =>
         'progress',
         'rows',
         'sql',
-        'output',
+        'results',
         'actions',
       ]}
       queries={queries}
@@ -52,7 +63,12 @@ const QueryHistory = ({ queries, actions, displayLimit }: QueryHistoryProps) =>
       displayLimit={displayLimit}
     />
   ) : (
-    <Alert type="info" message={t('No query history yet...')} />
+    <StyledEmptyStateWrapper>
+      <EmptyStateMedium
+        title={t('Run a query to display query history')}
+        image="document.svg"
+      />
+    </StyledEmptyStateWrapper>
   );
 
 export default QueryHistory;
