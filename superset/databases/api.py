@@ -40,6 +40,9 @@ from superset import (
     sql_lab,
     viz,
 )
+from superset.databases.helper_sql_query_builder import GetSqlQuery
+from superset.databases.join_path_algorithms_wrapper import JoinPathAlgoWrapper
+from superset.databases.sql_query_builder_prerequisite import Prerequisite_SqlQueryBuilder
 from superset.utils import core as utils, csv
 from superset.commands.importers.exceptions import NoValidFilesFoundError
 from superset.commands.importers.v1.utils import get_contents_from_bundle
@@ -435,7 +438,75 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         log_to_statsd=False,
     )
     def schemas_greeting(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
-       return self.response(200, message="Hello")
+
+        client_input = {
+          "conditionData": [{
+            "operator": "or",
+            "table": 'FCC 2018 Survey',
+            "columns": 'is_software_dev',
+            "operator2": "equals to",
+            "value": "groceries"
+          }, {
+            "operator": "or",
+            "table": 'FCC 2018 Survey',
+            "columns": 'is_software_dev',
+            "operator2": "equals to",
+            "value": "groceries"
+          }],
+          "measureData": [{
+            "table": 'FCC 2018 Survey',
+            "columns": 'is_software_dev',
+            "operator": 'sum'
+          }, {
+            "table": 'FCC 2018 Survey',
+            "columns": 'is_software_dev',
+            "operator": 'sum'
+          }],
+          "dimensionData": [{
+           "table": 'Students',
+            "columns": 'Name'
+          }, 
+          {
+              "table": 'Students',
+              "columns": 'Gender'
+          },
+          {
+              "table": 'VideoLessons',
+              "columns": 'Name'
+          },
+          {
+              "table": 'Teachers',
+              "columns": 'Name'
+          },
+          ]}
+        obj_join_path_graph = JoinPathAlgoWrapper()
+        obj_query_prerequisite = Prerequisite_SqlQueryBuilder()
+        
+        graph, path, join_paths_across = obj_join_path_graph.build_graph_connection(["Students", "VideoLessons", "Teachers"])
+
+        tables_list, table_list_alias = obj_query_prerequisite.get_table_list_with_alias(path)
+        outer_query_select_columns_alias = obj_query_prerequisite.get_columns_outer_query(client_input)
+        inner_query_select_columns, table_join_path = obj_query_prerequisite.get_columns_inner_query(join_paths_across, outer_query_select_columns_alias)
+        inner_query_select_columns_alias = inner_query_select_columns
+        inner_query_select_where = {}
+        inner_query_select_groupby = {}
+        inner_query_select_aggregate = {}
+        # outer_query_select_columns: dict,
+        # table_join_path = obj_query_prerequisite
+        
+        sql_query_object = GetSqlQuery()
+        sql_query = sql_query_object.get_sql_query(
+                                                    tables_list, 
+                                                    table_list_alias, 
+                                                    inner_query_select_columns, 
+                                                    inner_query_select_columns_alias,
+                                                    inner_query_select_where,
+                                                    inner_query_select_groupby,
+                                                    inner_query_select_aggregate,
+                                                    outer_query_select_columns_alias,
+                                                    table_join_path)
+
+        return self.response(200, message=sql_query)
 
 
     ########################################## Get Database metadata #########################################
