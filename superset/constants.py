@@ -128,6 +128,7 @@ MODEL_API_RW_METHOD_PERMISSION_MAP = {
     "available": "read",
     "get_data": "read",
     "schemas_greeting": "read",
+    "sql_query_generator": "read",
     "database_metadata": "read",
 }
 

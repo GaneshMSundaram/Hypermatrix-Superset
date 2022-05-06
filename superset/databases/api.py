@@ -117,6 +117,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "available",
         "validate_parameters",
         "schemas_greeting",
+        "sql_query_generator"
         "database_metadata",
     }
     resource_name = "database"
@@ -437,62 +438,75 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         action=lambda self, *args, **kwargs: f"{self.__class__.__name__}" f".schemas",
         log_to_statsd=False,
     )
-    def schemas_greeting(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
-
-        client_input = {
-          "conditionData": [{
-            "operator": "or",
-            "table": 'FCC 2018 Survey',
-            "columns": 'is_software_dev',
-            "operator2": "equals to",
-            "value": "groceries"
-          }, {
-            "operator": "or",
-            "table": 'FCC 2018 Survey',
-            "columns": 'is_software_dev',
-            "operator2": "equals to",
-            "value": "groceries"
-          }],
-          "measureData": [{
-            "table": 'FCC 2018 Survey',
-            "columns": 'is_software_dev',
-            "operator": 'sum'
-          }, {
-            "table": 'FCC 2018 Survey',
-            "columns": 'is_software_dev',
-            "operator": 'sum'
-          }],
-          "dimensionData": [{
-           "table": 'Students',
-            "columns": 'Name'
-          }, 
-          {
-              "table": 'Students',
-              "columns": 'Gender'
-          },
-          {
-              "table": 'VideoLessons',
-              "columns": 'Name'
-          },
-          {
-              "table": 'Teachers',
-              "columns": 'Name'
-          },
-          ]}
+    def schemas_greeting(self, pk: int, schema_name: dict, **kwargs: Any) -> FlaskResponse:
+        schema_name = schema_name.replace("\'", '"')
+        client_input = json.loads(schema_name)
+        # client_input = {
+        #   "conditionData": [{
+        #     "operator": "or",
+        #     "table": 'FCC 2018 Survey',
+        #     "columns": 'is_software_dev',
+        #     "operator2": "equals to",
+        #     "value": "groceries"
+        #   }, {
+        #     "operator": "or",
+        #     "table": 'FCC 2018 Survey',
+        #     "columns": 'is_software_dev',
+        #     "operator2": "equals to",
+        #     "value": "groceries"
+        #   }],
+        #   "measureData": [{
+        #     "table": 'FCC 2018 Survey',
+        #     "columns": 'is_software_dev',
+        #     "operator": 'sum'
+        #   }, {
+        #     "table": 'FCC 2018 Survey',
+        #     "columns": 'is_software_dev',
+        #     "operator": 'sum'
+        #   }],
+        #   "dimensionData": [{
+        #       "table": 'Students',
+        #       "columns": 'Name'
+        #   }, 
+        #   {
+        #       "table": 'Students',
+        #       "columns": 'Gender'
+        #   },
+        #   {
+        #       "table": 'VideoLessons',
+        #       "columns": 'Name'
+        #   },
+        #   {
+        #       "table": 'Teachers',
+        #       "columns": 'Name'
+        #   }
+        #   ]}
         obj_join_path_graph = JoinPathAlgoWrapper()
         obj_query_prerequisite = Prerequisite_SqlQueryBuilder()
         
-        graph, path, join_paths_across = obj_join_path_graph.build_graph_connection(["Students", "VideoLessons", "Teachers"])
+        # Outer Most SELECT Query required columns
+        outer_query_select_columns = obj_query_prerequisite.get_columns_for_outer_select_query(client_input)
 
+        # nodes to be linked in graph build in join path algo
+        nodes_to_be_linked = obj_query_prerequisite.get_nodes_to_be_linked(outer_query_select_columns)
+
+        # Fetch graph, table path and their join path using join path algorithms 
+        graph, path, join_paths_across = obj_join_path_graph.build_graph_connection(nodes_to_be_linked)
+
+        # get table list with alias
         tables_list, table_list_alias = obj_query_prerequisite.get_table_list_with_alias(path)
-        outer_query_select_columns_alias = obj_query_prerequisite.get_columns_outer_query(client_input)
-        inner_query_select_columns, table_join_path = obj_query_prerequisite.get_columns_inner_query(join_paths_across, outer_query_select_columns_alias)
+
+        # get alias for Outer Most SELECT Query required columns
+        outer_query_select_columns_alias = obj_query_prerequisite.get_columns_for_outer_select_query_alias(outer_query_select_columns, table_list_alias)
+
+        # Get table-join-path & columns to be used in select statement for all the inner queries 
+        inner_query_select_columns, table_join_path = obj_query_prerequisite.get_columns_inner_query(join_paths_across, outer_query_select_columns)
+
+        # Get alias for columns to be used in select statement for all the inner queries 
         inner_query_select_columns_alias = inner_query_select_columns
         inner_query_select_where = {}
         inner_query_select_groupby = {}
         inner_query_select_aggregate = {}
-        # outer_query_select_columns: dict,
-        # table_join_path = obj_query_prerequisite
         
         sql_query_object = GetSqlQuery()
         sql_query = sql_query_object.get_sql_query(
@@ -506,7 +520,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                                                     outer_query_select_columns_alias,
                                                     table_join_path)
 
-        return self.response(200, message=sql_query)
+        return self.response(200, GENERATED_SQL_QUERY = sql_query)
 
 
     ########################################## Get Database metadata #########################################

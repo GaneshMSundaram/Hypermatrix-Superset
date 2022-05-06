@@ -18,7 +18,7 @@ class Prerequisite_SqlQueryBuilder:
         return table_list, table_list_alias
 
     
-    def get_columns_outer_query(self, client_input: dict):
+    def get_columns_for_outer_select_query(self, client_input: dict):
         required_columns_outer_query = {}
         dimension_data = client_input["dimensionData"]
         for data in dimension_data:
@@ -29,6 +29,13 @@ class Prerequisite_SqlQueryBuilder:
                 required_columns_outer_query[data["table"]] = temp
         return required_columns_outer_query
 
+
+    def get_columns_for_outer_select_query_alias(self, outer_query_select_columns: dict, table_list_alias: dict):
+        outer_query_select_columns_alias = outer_query_select_columns.copy()
+        for key in outer_query_select_columns_alias:
+            new_key = table_list_alias[key]
+            outer_query_select_columns_alias[new_key] = outer_query_select_columns_alias.pop(key)
+        return outer_query_select_columns_alias
 
     
     def get_columns_inner_query(self, join_paths_across: list, output_columns_outer_query: dict): 
@@ -69,3 +76,11 @@ class Prerequisite_SqlQueryBuilder:
             required_columns_inner_query[item] = temp
 
         return required_columns_inner_query, table_join_path
+
+
+    def get_nodes_to_be_linked(self,outer_select_query_columns: dict): 
+        nodes_to_be_linked = []
+        for key in outer_select_query_columns:
+            nodes_to_be_linked.append(key)
+        return nodes_to_be_linked
+
