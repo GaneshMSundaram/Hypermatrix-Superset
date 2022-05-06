@@ -274,7 +274,8 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
         const item = checkboxes[i];
         var newTable = {
           table: table?.text,
-          columns: item.value
+          columns: item.value,
+          type: item.dataset.type
         }
         sessionStorage.setItem('arrowClicked', 'false');
         const findItem = tableItemArray.findIndex(e => e?.columns === item.value && e?.table === table?.text)
@@ -318,7 +319,8 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       arrowCheck();
       var newTable = {
         table: table?.text,
-        columns: evt.target.value
+        columns: evt.target.value,
+        type: evt.target.dataset.type
       }
       sessionStorage.setItem('arrowClicked', 'false');
       tableItemArray.push(newTable);
@@ -413,6 +415,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
                         className='leftCheckBox'
                         id={`column-checkbox-${colData.name}`}
                         name={item.value}
+                        data-type = {colData.type}
                         value= {`${colData.name}`}
                         onChange={() => tableSelection(event, index, tableOptions[index])}
                       />

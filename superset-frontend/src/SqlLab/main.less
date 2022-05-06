@@ -335,14 +335,27 @@ div.Workspace {
     }
   }
   .textSection{
-    width: 80%;
+    width: 60%;
     display: inline-block;
+  }
+  .typeSection{
+    width: 12%;
+    display: inline-block;
+    font-size: 12px;
+    text-align: center;
+    background: #ccc;
+    margin: 0 10px 0 0;
+    padding: 3px;
+    color: #4f4f4f;
   }
   .queryPane {
     flex: 1 1 auto;
     padding-left: 10px;
     overflow-y: none;
     // overflow-x: scroll;
+    .SouthPane{
+      height: calc(70% - 5.5px);
+    }
   }
   .newSection{
     display: flex;
@@ -397,6 +410,7 @@ div.Workspace {
       top: 75px;
       right: 100px;
       text-transform: uppercase;
+      cursor: pointer;
     }
     .disabledBtn{
       background: #ccc;

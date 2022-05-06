@@ -86,7 +86,7 @@ const WINDOW_RESIZE_THROTTLE_MS = 100;
 const conditionDataArray = [];
 const measureDataArray = [];
 const dimensionDataArray = [];
-
+var generateBtnFlag = false;
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -537,14 +537,20 @@ class SqlEditor extends React.PureComponent {
         measureItems: finalConditionData
       })
   }
+  hideFirstdropdown = () => {
+    const getFirstDrpDwn = document.getElementsByClassName('conditionSection')
+    getFirstDrpDwn[0].firstChild.firstChild.firstChild.style.visibility = "hidden"
+
+  }
   removeConditions = (event) =>{
     event.target.parentNode.parentNode.parentNode.remove();
-    
+    this.hideFirstdropdown();    
   }
   removeItems = () => {
     let dimesnionArray = this.state.getSelectedTableData.slice();
     let removeItems = [...document.getElementsByClassName('activeDim')];
     removeItems.forEach(item => {
+      item.classList.remove('activeDim')
       let tableCol = item.innerText.split('.');
       let table = tableCol[0];
       let column = tableCol[1];
@@ -567,6 +573,7 @@ class SqlEditor extends React.PureComponent {
     let measureArray = this.state.measureItems.slice();
     let removeMeasureItems = [...document.getElementsByClassName('activeMeasures')];
     removeMeasureItems.forEach(item => {
+      item.classList.remove('activeMeasures');
       let tableCol = item.firstChild.firstChild.innerText.split('.');
       let table = tableCol[0];
       let column = tableCol[1];
@@ -581,6 +588,7 @@ class SqlEditor extends React.PureComponent {
         measureItems: measureArray
       })
     });
+    
     setTimeout(() => {
       this.disableGenerateBtn();      
     }, 100);
@@ -599,6 +607,9 @@ class SqlEditor extends React.PureComponent {
       element.classList.add("fa-disabled");
       let element2 = document.getElementById("arrowIcon1");
       element2.classList.add("fa-disabled");
+      setTimeout(() => {
+        this.hideFirstdropdown()
+      }, 0);
     }
   }
   
@@ -705,22 +716,24 @@ class SqlEditor extends React.PureComponent {
     let getBtn = document.getElementById('generateQueryBtn');
     if(checkDimension === '' && checkMeasure === ''){
       getBtn.classList.add("disabledBtn");
-      getBtn.disabled= true;
+      generateBtnFlag = false;
     }else{
       getBtn.classList.remove("disabledBtn");
-      getBtn.disabled= false;
+      generateBtnFlag = true;
     }
   }  
-  generateQuery = () => {    
-    this.loadDimensionData();
-    this.loadMeasureData();
-    this.loadConditionData();
-    const payload = {      
-      dimensionData: dimensionDataArray,
-      measureData: measureDataArray,
-      conditionData: conditionDataArray
+  generateQuery = () => {
+    if (generateBtnFlag) {
+      this.loadDimensionData();
+      this.loadMeasureData();
+      this.loadConditionData();
+      const payload = {
+        dimensionData: dimensionDataArray,
+        measureData: measureDataArray,
+        conditionData: conditionDataArray
+      }
+      console.log('Final Payload: ', payload)
     }
-    console.log('Final Payload: ', payload)
   }
   queryPane() {
     const hotkeys = this.getHotkeyConfig();
@@ -773,6 +786,7 @@ class SqlEditor extends React.PureComponent {
                       <li key={index}>
                         <div id={`measure_${index}`} onClick={() => this.addActiveMeasures(event)} className='selMeasures contentSection'>
                           <span id={`selMeasure_${index}`} className='textSection'>{item.table}.{item.columns}</span>
+                          <div className='typeSection'>{item.type}</div>
                           <select id={`selMeasureOperator_${index}`}>
                             <option value="sum">sum</option>
                             <option value="avg">avg</option>
@@ -795,9 +809,9 @@ class SqlEditor extends React.PureComponent {
             <div className='positionRelative'>
               <span className='positionAbsolute'><i id='arrowIcon3'  onClick={() => this.getConditions(event)} className="fa fa-disabled fa-arrow-circle-right cursor-pointer"/></span>
             </div>
-            <h4>Conditions</h4>
+            <h5>Conditions (Please include single quotations when using text data type comparisons ex : Name = 'xyz')</h5>
             <div className='borderBox'>
-              <ul>
+              <ul className='conditionSection'>
               {
                 this.state.getConditionsData.map((item, index) => {
                     return (
@@ -809,11 +823,13 @@ class SqlEditor extends React.PureComponent {
                             <option value='not'>Not</option>
                           </select>
                           <input id={`tableCol_${index}`} type='text' defaultValue={`${item.table}.${item.columns}`}/>
+                          <div className='typeSection'>{item.type}</div>
                           <select id={`operator2_${index}`} onChange={() => this.nullSelectionCheck(event, index)}>
                             <option value='equalsTo'>Equals to</option>
                             <option value='notEqualsTo'>Not Equals to</option>
                             <option value='greaterThan'>Greater than</option>
                             <option value='lessThan'>Less than</option>
+                            <option value='like'>Like</option>
                             <option value='isNull'>Is null</option>
                             <option value='isNotNull'>Is not null</option>                            
                           </select>                      
@@ -825,7 +841,7 @@ class SqlEditor extends React.PureComponent {
                   })}
               </ul>
             </div>
-            <div className='generateQuery'><button id="generateQueryBtn" className='generateQueryBtn disabledBtn' disabled onClick={() => this.generateQuery()}>Generate Query</button></div>
+            <div className='generateQuery'><div id="generateQueryBtn" className='generateQueryBtn disabledBtn' onClick={() => this.generateQuery()}>Generate Query</div></div>
 
           </div>
         </div>
