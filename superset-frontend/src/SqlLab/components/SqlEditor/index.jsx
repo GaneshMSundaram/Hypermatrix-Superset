@@ -787,6 +787,14 @@ class SqlEditor extends React.PureComponent {
                         <div id={`measure_${index}`} onClick={() => this.addActiveMeasures(event)} className='selMeasures contentSection'>
                           <span id={`selMeasure_${index}`} className='textSection'>{item.table}.{item.columns}</span>
                           <div className='typeSection'>{item.type}</div>
+                          {item.type === 'VARCHAR' || item.type === 'TEXT' ?
+                          <select id={`selMeasureOperator_${index}`}>
+                              <option value="count">count</option>
+                              <option value="count distinct">count distinct</option>
+                              <option value="max">max</option>
+                              <option value="min">min</option>
+                          </select>
+                            :
                           <select id={`selMeasureOperator_${index}`}>
                             <option value="sum">sum</option>
                             <option value="avg">avg</option>
@@ -794,16 +802,14 @@ class SqlEditor extends React.PureComponent {
                             <option value="min">min</option>
                             <option value="count">count</option>
                             <option value="count distinct">count distinct</option>
-                          </select>
+                            </select>}                          
                         </div>
-                        
                       </li>
                     );
                   })}
                 </ul>              
               </div>
             </div>
-
           </div>
           <div className='conditionBox'>
             <div className='positionRelative'>
