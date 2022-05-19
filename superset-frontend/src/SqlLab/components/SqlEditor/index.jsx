@@ -75,6 +75,9 @@ import ShareSqlLabQuery from '../ShareSqlLabQuery';
 import SqlEditorLeftBar from '../SqlEditorLeftBar';
 import AceEditorWrapper from '../AceEditorWrapper';
 import RunQueryActionButton from '../RunQueryActionButton';
+import { QueryBuilder, Field, formatQuery } from 'react-querybuilder';
+import 'react-querybuilder/dist/query-builder.css';
+import getOperators from './getOperators';
 
 const LIMIT_DROPDOWN = [10, 100, 1000, 10000, 100000];
 const SQL_EDITOR_PADDING = 10;
@@ -83,7 +86,7 @@ const INITIAL_SOUTH_PERCENT = 70;
 const SET_QUERY_EDITOR_SQL_DEBOUNCE_MS = 2000;
 const VALIDATION_DEBOUNCE_MS = 600;
 const WINDOW_RESIZE_THROTTLE_MS = 100;
-const conditionDataArray = [];
+// const conditionDataArray = [];
 const measureDataArray = [];
 const dimensionDataArray = [];
 var generateBtnFlag = false;
@@ -186,6 +189,11 @@ class SqlEditor extends React.PureComponent {
       ),
       showCreateAsModal: false,
       createAs: '',
+      dbQuery: {
+        id: 'root',
+        combinator: 'and',
+        rules: []
+      },
     };
     this.sqlEditorRef = React.createRef();
     this.northPaneRef = React.createRef();
@@ -194,6 +202,7 @@ class SqlEditor extends React.PureComponent {
     this.onResizeStart = this.onResizeStart.bind(this);
     this.onResizeEnd = this.onResizeEnd.bind(this);
     this.canValidateQuery = this.canValidateQuery.bind(this);
+    this.updateDbQuery = this.updateDbQuery.bind(this);
     this.runQuery = this.runQuery.bind(this);
     this.stopQuery = this.stopQuery.bind(this);
     this.saveQuery = this.saveQuery.bind(this);
@@ -403,6 +412,12 @@ class SqlEditor extends React.PureComponent {
     });
   };
 
+  // update dbQuery state
+  updateDbQuery(newDbQuery){
+    newDbQuery = newDbQuery;
+    this.setState({dbQuery : newDbQuery})
+  }
+
   handleWindowResize() {
     this.setState({ height: this.getSqlEditorHeight() });
   }
@@ -537,14 +552,9 @@ class SqlEditor extends React.PureComponent {
         measureItems: finalConditionData
       })
   }
-  hideFirstdropdown = () => {
-    const getFirstDrpDwn = document.getElementsByClassName('conditionSection')
-    getFirstDrpDwn[0].firstChild.firstChild.firstChild.style.visibility = "hidden"
-
-  }
+  
   removeConditions = (event) =>{
     event.target.parentNode.parentNode.parentNode.remove();
-    this.hideFirstdropdown();    
   }
   removeItems = () => {
     let dimesnionArray = this.state.getSelectedTableData.slice();
@@ -597,7 +607,11 @@ class SqlEditor extends React.PureComponent {
     let checkArrowDisabled = document.getElementById('arrowIcon3').classList.contains('fa-disabled');
     if (!checkArrowDisabled) {
       const getSessionData2 = JSON.parse(sessionStorage.getItem("selectedTableData"));
-      const finalConditionData = this.state.getConditionsData.concat(getSessionData2);
+      const fields = getSessionData2.map(function(row) {     
+        return { name : row.table+'.' +row.columns, label : row.table+'.' +row.columns }
+     })
+      const finalConditionData = this.state.getConditionsData.concat(fields);
+      
       this.setState({
         getConditionsData: finalConditionData
       })
@@ -606,10 +620,7 @@ class SqlEditor extends React.PureComponent {
       let element = document.getElementById("arrowIcon2");
       element.classList.add("fa-disabled");
       let element2 = document.getElementById("arrowIcon1");
-      element2.classList.add("fa-disabled");
-      setTimeout(() => {
-        this.hideFirstdropdown()
-      }, 0);
+      element2.classList.add("fa-disabled");      
     }
   }
   
@@ -623,11 +634,7 @@ class SqlEditor extends React.PureComponent {
   disableArrow(event) {    
     var element = event.target;
     element.classList.add("fa-disabled");
-  }
-  // removeDisabled = () => {
-  //   var element = document.getElementById("arrowIcon2");
-  //   element.classList.remove("fa-disabled");
-  // }  
+  } 
   addActiveDim(event) {
     var _this = event.target.parentNode.parentNode;
     _this.classList.toggle("activeDim")
@@ -636,40 +643,7 @@ class SqlEditor extends React.PureComponent {
     var _this = event.target.parentNode.parentNode;
     _this.classList.toggle("activeMeasures")
   }
-  nullSelectionCheck = (event, index) => {
-    var sel = document.getElementById(`operator2_${index}`).value;
-    if (sel === 'isNull' || sel === 'isNotNull') {
-      event.target.nextSibling.disabled= true;
-    } else {
-      event.target.nextSibling.disabled= false;
-    }
-  }
-  loadConditionData = () => {
-    let dataLength = document.getElementsByClassName('conditionRow');
-    // let conditionDataArray = [];
-    let arr = Array.from(dataLength);
-    conditionDataArray.length = 0;
-    for (let index = 0; index < arr.length; index++) {
-      const item = arr[index];
-      let findIndex = item.id.split('_')[1];
-      let operator1Val = document.getElementById(`operator_${findIndex}`).value;
-      let tableColValSplit = document.getElementById(`tableCol_${findIndex}`).value.split('.');
-      let tableVal = tableColValSplit[0];
-      let columnVal = tableColValSplit[1]
-      let operator2Val = document.getElementById(`operator2_${findIndex}`).value;
-      let openVal = document.getElementById(`value_${findIndex}`).value;
-      const conditionData = {
-        operator: operator1Val,
-        table: tableVal,
-        columns: columnVal,
-        operator2: operator2Val,
-        value: openVal
-      }
-      conditionDataArray.push(conditionData);
-      // console.log('conditionDataArray', conditionDataArray)
 
-    }
-  }
   loadMeasureData = () => {
     let dataLength = document.getElementsByClassName('selMeasures');
     // let measureDataArray = [];
@@ -688,8 +662,6 @@ class SqlEditor extends React.PureComponent {
         operator2: operator2Val,
       }
       measureDataArray.push(measureData);
-      // console.log('measure', measureDataArray)
-
     }
   }
   loadDimensionData = () => {
@@ -707,7 +679,6 @@ class SqlEditor extends React.PureComponent {
         columns: columnVal,
       }
       dimensionDataArray.push(dimensionData);
-      // console.log('dim', dimensionDataArray)
     }
   }
   disableGenerateBtn = () =>{
@@ -726,11 +697,10 @@ class SqlEditor extends React.PureComponent {
     if (generateBtnFlag) {
       this.loadDimensionData();
       this.loadMeasureData();
-      this.loadConditionData();
       const payload = {
         dimensionData: dimensionDataArray,
         measureData: measureDataArray,
-        conditionData: conditionDataArray
+        conditionData: this.state.dbQuery
       }
       console.log('Final Payload: ', payload)
     }
@@ -817,35 +787,14 @@ class SqlEditor extends React.PureComponent {
             </div>
             <h5>Conditions (Please include single quotations when using text data type comparisons ex : Name = 'xyz')</h5>
             <div className='borderBox'>
-              <ul className='conditionSection'>
-              {
-                this.state.getConditionsData.map((item, index) => {
-                    return (
-                      <li key={index}>
-                        <div id={`conditionRow_${index}`} className="conditionRow">
-                          <select id={`operator_${index}`}>
-                            <option value='and'>And</option>
-                            <option value='or'>Or</option>
-                            <option value='not'>Not</option>
-                          </select>
-                          <input id={`tableCol_${index}`} type='text' defaultValue={`${item.table}.${item.columns}`}/>
-                          <div className='typeSection'>{item.type}</div>
-                          <select id={`operator2_${index}`} onChange={() => this.nullSelectionCheck(event, index)}>
-                            <option value='equalsTo'>Equals to</option>
-                            <option value='notEqualsTo'>Not Equals to</option>
-                            <option value='greaterThan'>Greater than</option>
-                            <option value='lessThan'>Less than</option>
-                            <option value='like'>Like</option>
-                            <option value='isNull'>Is null</option>
-                            <option value='isNotNull'>Is not null</option>                            
-                          </select>                      
-                        <input id={`value_${index}`} type='text'/>
-                        <div className='removeSection'><span className='fa fa-times cursor-pointer' onClick={() => this.removeConditions(event)}></span></div>
-                        </div>                        
-                      </li>
-                    );
-                  })}
-              </ul>
+              <QueryBuilder
+                fields={this.state.getConditionsData}
+                getOperators={getOperators}
+                onQueryChange={this.updateDbQuery}
+                query={this.state.dbQuery}
+              /> 
+              <pre>{formatQuery(this.state.dbQuery,'sql')}</pre>
+              <pre>{formatQuery(this.state.dbQuery,'json')}</pre>              
             </div>
             <div className='generateQuery'><div id="generateQueryBtn" className='generateQueryBtn disabledBtn' onClick={() => this.generateQuery()}>Generate Query</div></div>
 
