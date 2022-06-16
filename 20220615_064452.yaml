@@ -1,0 +1,17 @@
+- columns:
+  - column_name: Age Group
+    extra: '{}'
+    type: STRING
+  metrics:
+  - expression: count(*)
+    extra: '{"warning_markdown":""}'
+    metric_name: count
+  params: '{"remote_id": 51, "database_name": "PostgreSQL_DW", "import_time": 1654709185}'
+  schema: public
+  sql: "select\nDISTINCT \n\ncase \n\t\twhen t1.age < 17 then '<17' \n\t\twhen t1.age\
+    \ >= 18 and t1.age <= 23 then '18-23' \n\t\twhen t1.age >= 24 and t1.age <= 29\
+    \ then '24-29' \n\t\twhen t1.age >= 30 and t1.age <= 35 then '30-35' \n\t\twhen\
+    \ t1.age >= 36 and t1.age <= 40 then '36-40'\n\t\twhen t1.age >= 41 and t1.age\
+    \ <= 45 then '41-45'\n\t\twhen t1.age >= 46 and t1.age <= 50 then '46-50'\n\t\t\
+    else '>50' end as \"Age Group\"\n\n\n\nfrom ret_stdnt_fact t1"
+  table_name: Age Group Filter

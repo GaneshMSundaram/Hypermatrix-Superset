@@ -172,9 +172,12 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = CHANGE_ME_SECRET_KEY
 
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset.db")
+# SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset.db")
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
-# SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres123@postgresql.cqjxk9hplpul.us-east-2.rds.amazonaws.com:5432/Superset_Metadata'
+# SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost:5434/Superset_metadata_demo_v1'
+
+# ./build/bin/pgloader superset.db postgresql://postgres:postgres@localhost:5431/postgres
 
 # In order to hook up a custom password store for all SQLACHEMY connections
 # implement a function that takes a single argument of type 'sqla.engine.url',
@@ -372,7 +375,7 @@ DEFAULT_FEATURE_FLAGS: Dict[str, bool] = {
     # make GET request to explore_json. explore_json accepts both GET and POST request.
     # See `PR 7935 <https://github.com/apache/superset/pull/7935>`_ for more details.
     "ENABLE_EXPLORE_JSON_CSRF_PROTECTION": False,
-    "ENABLE_TEMPLATE_PROCESSING": False,
+    "ENABLE_TEMPLATE_PROCESSING": True,
     "ENABLE_TEMPLATE_REMOVE_FILTERS": False,
     "KV_STORE": False,
     # When this feature is enabled, nested types in Presto will be

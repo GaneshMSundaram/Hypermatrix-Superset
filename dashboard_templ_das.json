@@ -1,0 +1,15 @@
+{
+    "dashboards": [
+        {
+            "__Dashboard__": {
+                "css": "#app {\r\nbackground-color: #EBF8FD }\r\n\r\n.dashboard-header .dashboard-component-header.header-large {\r\n    background-image: url(/static/assets/images/ace_logo.png);\r\n    background-repeat: no-repeat;\r\n    padding-left: 122px;\r\n    background-size: 112px;\r\n    background-position-y: 15px;\r\n    text-align: center;\r\n    width: 95%;\r\n    display: inline-block;\r\n    font-size: 28px;\r\n    color: #343434;\r\n    font-family: calibri;\r\n    font-weight: bold;\r\n}\r\n.dashboard-header .dashboard-component-header.header-large .fave-unfave-icon{\r\n  display: inline-block;\r\n}\r\n\r\n.dashboard .chart-header>.header-title {\r\n    text-align: center;\r\n    font-family: calibri;\r\n    font-size: 20px;\r\n}\r\n\r\n\r\n\r\n.dashboard-header {\r\n    background: #EBF8FD;\r\n}\r\n\r\n.ant-tabs-content-holder {\r\nbackground-color: #EBF8FD; }\r\n\r\n\r\n.dashboard .chart-header>.header-title {\r\ntext-align: center; }\r\n\r\n.ant-select-item-option-content {\r\n    font-size: 11px;\r\n}\r\nspan.ant-select-selection-placeholder {\r\n    font-size: 11px;\r\n}\r\n\r\n.dashboard-component-chart-holder.fade-in, .dashboard-component-chart-holder.fade-out {\r\n    border-radius: 10px;\r\n}\r\n\r\n.dashboard-component-chart-holder.fade-in, .dashboard-component-chart-holder.fade-out {\r\n    box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);\r\n}\r\n\r\n.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {\r\n    font-size: 12px;\r\n}\r\n\r\n\r\n\r\n.ant-tabs \r\n    /* width */\r\n::-webkit-scrollbar {\r\n  width: 8px;\r\n}\r\n\r\n/* Track */\r\n::-webkit-scrollbar-track {\r\n  background: #f1f1f1; \r\n}\r\n \r\n/* Handle */\r\n::-webkit-scrollbar-thumb {\r\n  background: #8b8888; \r\n}\r\n\r\n/* Handle on hover */\r\n::-webkit-scrollbar-thumb:hover {\r\n  background: #555; \r\n}",
+                "dashboard_title": "Dashboard Template",
+                "description": null,
+                "json_metadata": "{\"show_native_filters\": true, \"chart_configuration\": {}, \"color_scheme\": \"echarts4Colors\", \"refresh_frequency\": 0, \"expanded_slices\": {}, \"label_colors\": {}, \"timed_refresh_immune_slices\": [], \"default_filters\": \"{}\", \"native_filter_configuration\": [], \"shared_label_colors\": {}, \"remote_id\": 5, \"import_time\": 1654707022}",
+                "position_json": "{\"DASHBOARD_VERSION_KEY\":\"v2\",\"GRID_ID\":{\"children\":[],\"id\":\"GRID_ID\",\"parents\":[\"ROOT_ID\"],\"type\":\"GRID\"},\"HEADER_ID\":{\"id\":\"HEADER_ID\",\"meta\":{\"text\":\"Dashboard Template\"},\"type\":\"HEADER\"},\"ROOT_ID\":{\"children\":[\"GRID_ID\"],\"id\":\"ROOT_ID\",\"type\":\"ROOT\"}}",
+                "slug": null
+            }
+        }
+    ],
+    "datasources": []
+}

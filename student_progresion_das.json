@@ -1,0 +1,1402 @@
+{
+    "dashboards": [
+        {
+            "__Dashboard__": {
+                "css": "#app {\nbackground-color: #EBF8FD }\n\n.dashboard-header .dashboard-component-header.header-large {\n    background-image: url(/static/assets/images/ace_logo.png);\n    background-repeat: no-repeat;\n    padding-left: 122px;\n    background-size: 112px;\n    background-position-y: 15px;\n    text-align: center;\n    width: 95%;\n    display: inline-block;\n    font-size: 28px;\n    color: #343434;\n    font-family: calibri;\n    font-weight: bold;\n}\n.dashboard-header .dashboard-component-header.header-large .fave-unfave-icon{\n  display: inline-block;\n}\n\n.dashboard .chart-header>.header-title {\n    text-align: center;\n    font-family: calibri;\n    font-size: 20px;\n}\n\n\n\n.dashboard-header {\n    background: #EBF8FD;\n}\n\n.ant-tabs-content-holder {\nbackground-color: #EBF8FD; }\n\n\n.dashboard .chart-header>.header-title {\ntext-align: center; }\n\n.ant-select-item-option-content {\n    font-size: 11px;\n}\nspan.ant-select-selection-placeholder {\n    font-size: 11px;\n}\n\n.dashboard-component-chart-holder.fade-in, .dashboard-component-chart-holder.fade-out {\n    border-radius: 10px;\n}\n\n.dashboard-component-chart-holder.fade-in, .dashboard-component-chart-holder.fade-out {\n    box-shadow: 0 5px 5px -3px rgb(0 0 0 / 20%), 0 8px 10px 1px rgb(0 0 0 / 14%), 0 3px 14px 2px rgb(0 0 0 / 12%);\n}\n\n.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {\n    font-size: 12px;\n}\n\n\n\n.ant-tabs \n    /* width */\n::-webkit-scrollbar {\n  width: 8px;\n}\n\n/* Track */\n::-webkit-scrollbar-track {\n  background: #f1f1f1; \n}\n \n/* Handle */\n::-webkit-scrollbar-thumb {\n  background: #8b8888; \n}\n\n/* Handle on hover */\n::-webkit-scrollbar-thumb:hover {\n  background: #555; \n}",
+                "dashboard_title": "Student Progression Dashboard",
+                "description": null,
+                "json_metadata": "{\"show_native_filters\": true, \"chart_configuration\": {\"25\": {\"id\": 25, \"crossFilters\": {\"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [25]}}}, \"26\": {\"id\": 26, \"crossFilters\": {\"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [26]}}}}, \"color_scheme\": \"d3Category20\", \"refresh_frequency\": 0, \"expanded_slices\": {}, \"label_colors\": {}, \"timed_refresh_immune_slices\": [], \"default_filters\": \"{}\", \"native_filter_configuration\": [{\"id\": \"NATIVE_FILTER-UcRABdCeJ\", \"controlValues\": {\"enableEmptyFilter\": true, \"defaultToFirstItem\": false, \"multiSelect\": false, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Select Dimension\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 7, \"column\": {\"name\": \"DynamicDimension\"}}], \"defaultDataMask\": {\"extraFormData\": {\"filters\": [{\"col\": \"DynamicDimension\", \"op\": \"IN\", \"val\": [\"Gender\"]}]}, \"filterState\": {\"validateMessage\": false, \"validateStatus\": false, \"label\": \"Gender\", \"value\": [\"Gender\"]}, \"__cache\": {\"validateMessage\": false, \"validateStatus\": false, \"label\": \"Gender\", \"value\": [\"Gender\"]}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": []}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER_DIVIDER-sp2MHUrnO\", \"type\": \"DIVIDER\", \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": []}, \"title\": \"Filters selection\", \"description\": \"\", \"chartsInScope\": [], \"tabsInScope\": []}, {\"id\": \"NATIVE_FILTER-IQy8N1dHe\", \"controlValues\": {\"enableEmptyFilter\": true, \"defaultToFirstItem\": false, \"multiSelect\": false, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Program\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 8, \"column\": {\"name\": \"Program\"}}], \"defaultDataMask\": {\"extraFormData\": {\"filters\": [{\"col\": \"Program\", \"op\": \"IN\", \"val\": [\"Bachelor\"]}]}, \"filterState\": {\"validateMessage\": false, \"validateStatus\": false, \"label\": \"Bachelor\", \"value\": [\"Bachelor\"]}, \"__cache\": {\"validateMessage\": false, \"validateStatus\": false, \"label\": \"Bachelor\", \"value\": [\"Bachelor\"]}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [133]}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-KWeGhVitr\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Year of Entry\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 10, \"column\": {\"name\": \"Year of Entry\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [133]}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-ZnM3_TV6z\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Year of Study\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 10, \"column\": {\"name\": \"Year of Study\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": []}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-yWSvReHPA\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Gender\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 12, \"column\": {\"name\": \"Gender\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [133]}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-0FA91R7V7\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Ethnicity\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 9, \"column\": {\"name\": \"Ethnicity\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": []}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-5pekbDJyi\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Enrollment Status\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 6, \"column\": {\"name\": \"Enrollment Status\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [133]}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-vZXiFbGF7\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Age Group\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 4, \"column\": {\"name\": \"Age Group\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [133]}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-v6jpxW_8_\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"ACT score\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 11, \"column\": {\"name\": \"ACT score\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [133]}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}, {\"id\": \"NATIVE_FILTER-bvmpS4BV6\", \"controlValues\": {\"enableEmptyFilter\": false, \"defaultToFirstItem\": false, \"multiSelect\": true, \"searchAllOptions\": false, \"inverseSelection\": false}, \"name\": \"Took Remedial course(s)\", \"filterType\": \"filter_select\", \"targets\": [{\"datasetId\": 5, \"column\": {\"name\": \"Took Remedial course(s)\"}}], \"defaultDataMask\": {\"extraFormData\": {}, \"filterState\": {}, \"ownState\": {}}, \"cascadeParentIds\": [], \"scope\": {\"rootPath\": [\"ROOT_ID\"], \"excluded\": [133]}, \"type\": \"NATIVE_FILTER\", \"description\": \"\", \"chartsInScope\": [153], \"tabsInScope\": [\"TAB-MVrkhzy-Xr\"]}], \"remote_id\": 4, \"import_time\": 1654709185, \"shared_label_colors\": {\"2018\": \"#ffbb78\", \"2019\": \"#ffbb78\", \"2020\": \"#2ca02c\", \"2021\": \"#ffbb78\", \"2022\": \"#ff7f0e\", \"Accalerated Progression\": \"#1f77b4\", \"Fallen Behind\": \"#aec7e8\", \"Normal Progression\": \"#ff7f0e\"}}",
+                "position_json": "{\"CHART-BnsvxOly1g\":{\"children\":[],\"id\":\"CHART-BnsvxOly1g\",\"meta\":{\"chartId\":25,\"height\":99,\"sliceName\":\"Student Progression - Credit Completion rate\",\"sliceNameOverride\":\"Student Progression by Credit Completion rate\",\"uuid\":\"75508ff5-e758-4636-a08a-06a29c712331\",\"width\":12},\"parents\":[\"ROOT_ID\",\"GRID_ID\",\"TABS-NcHGSZptOa\",\"TAB-MVrkhzy-Xr\",\"ROW-wGek0CN-ps\"],\"type\":\"CHART\"},\"CHART-Qhj2Sc7WLF\":{\"children\":[],\"id\":\"CHART-Qhj2Sc7WLF\",\"meta\":{\"chartId\":26,\"height\":65,\"sliceName\":\"Student Progression - Credit Completion rate\",\"sliceNameOverride\":\"Credit Completion rate (Tabular view)\",\"uuid\":\"271b20d3-e777-412c-9b1d-1dbebb0cddb8\",\"width\":6},\"parents\":[\"ROOT_ID\",\"GRID_ID\",\"ROW-flDa2pw94O\"],\"type\":\"CHART\"},\"COLUMN-wdAyArBoos\":{\"children\":[],\"id\":\"COLUMN-wdAyArBoos\",\"meta\":{\"background\":\"BACKGROUND_TRANSPARENT\",\"width\":3},\"parents\":[\"ROOT_ID\",\"GRID_ID\",\"ROW-flDa2pw94O\"],\"type\":\"COLUMN\"},\"DASHBOARD_VERSION_KEY\":\"v2\",\"DIVIDER-YCk9fzF-7R\":{\"children\":[],\"id\":\"DIVIDER-YCk9fzF-7R\",\"meta\":{},\"parents\":[\"ROOT_ID\",\"GRID_ID\"],\"type\":\"DIVIDER\"},\"GRID_ID\":{\"children\":[\"TABS-NcHGSZptOa\",\"DIVIDER-YCk9fzF-7R\",\"ROW-flDa2pw94O\"],\"id\":\"GRID_ID\",\"parents\":[\"ROOT_ID\"],\"type\":\"GRID\"},\"HEADER_ID\":{\"id\":\"HEADER_ID\",\"meta\":{\"text\":\"Student Progression Dashboard\"},\"type\":\"HEADER\"},\"ROOT_ID\":{\"children\":[\"GRID_ID\"],\"id\":\"ROOT_ID\",\"type\":\"ROOT\"},\"ROW-flDa2pw94O\":{\"children\":[\"COLUMN-wdAyArBoos\",\"CHART-Qhj2Sc7WLF\"],\"id\":\"ROW-flDa2pw94O\",\"meta\":{\"0\":\"ROOT_ID\",\"background\":\"BACKGROUND_TRANSPARENT\"},\"parents\":[\"ROOT_ID\",\"GRID_ID\"],\"type\":\"ROW\"},\"ROW-wGek0CN-ps\":{\"children\":[\"CHART-BnsvxOly1g\"],\"id\":\"ROW-wGek0CN-ps\",\"meta\":{\"background\":\"BACKGROUND_TRANSPARENT\"},\"parents\":[\"ROOT_ID\",\"GRID_ID\",\"TABS-NcHGSZptOa\",\"TAB-MVrkhzy-Xr\"],\"type\":\"ROW\"},\"TAB-MVrkhzy-Xr\":{\"children\":[\"ROW-wGek0CN-ps\"],\"id\":\"TAB-MVrkhzy-Xr\",\"meta\":{\"defaultText\":\"Tab title\",\"placeholder\":\"Tab title\",\"text\":\"Credit Completion rate\"},\"parents\":[\"ROOT_ID\",\"GRID_ID\",\"TABS-NcHGSZptOa\"],\"type\":\"TAB\"},\"TABS-NcHGSZptOa\":{\"children\":[\"TAB-MVrkhzy-Xr\"],\"id\":\"TABS-NcHGSZptOa\",\"meta\":{},\"parents\":[\"ROOT_ID\",\"GRID_ID\"],\"type\":\"TABS\"}}",
+                "slices": [
+                    {
+                        "__Slice__": {
+                            "cache_timeout": null,
+                            "datasource_name": "public.Student Progression Model",
+                            "datasource_type": "table",
+                            "id": 25,
+                            "params": "{\"adhoc_filters\": [{\"clause\": \"WHERE\", \"comparator\": \"Un-defined\", \"expressionType\": \"SIMPLE\", \"filterOptionName\": \"filter_d8k6lj29qm_rz1vel4kgk\", \"isExtra\": false, \"isNew\": false, \"operator\": \"!=\", \"operatorId\": \"NOT_EQUALS\", \"sqlExpression\": null, \"subject\": \"Category\"}], \"color_scheme\": \"supersetColors\", \"datasource\": \"55__table\", \"date_format\": \"smart_date\", \"extra_form_data\": {}, \"groupby\": [\"Year of Study\", \"Category\", \"Dimension\"], \"label_type\": \"key_value\", \"metric\": {\"aggregate\": null, \"column\": null, \"expressionType\": \"SQL\", \"hasCustomLabel\": true, \"isNew\": false, \"label\": \"Student count\", \"optionName\": \"metric_rhl93vre2j_9vkb44ykfvj\", \"sqlExpression\": \"COUNT(DISTINCT studentid)\"}, \"number_format\": \"SMART_NUMBER\", \"row_limit\": 50000, \"show_labels\": true, \"show_upper_labels\": true, \"slice_id\": 153, \"time_range\": \"No filter\", \"time_range_endpoints\": [\"inclusive\", \"exclusive\"], \"viz_type\": \"treemap_v2\", \"remote_id\": 25, \"datasource_name\": \"Student Progression Model\", \"schema\": \"public\", \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                            "query_context": "{\"datasource\":{\"id\":55,\"type\":\"table\"},\"force\":false,\"queries\":[{\"time_range\":\"No filter\",\"filters\":[{\"col\":\"Category\",\"op\":\"!=\",\"val\":\"Un-defined\"},{\"col\":\"DynamicDimension\",\"op\":\"IN\",\"val\":[\"Gender\"]},{\"col\":\"Program\",\"op\":\"IN\",\"val\":[\"Bachelor\"]}],\"extras\":{\"time_range_endpoints\":[\"inclusive\",\"exclusive\"],\"having\":\"\",\"having_druid\":[],\"where\":\"\"},\"applied_time_extras\":{},\"columns\":[\"Year of Study\",\"Category\",\"Dimension\"],\"metrics\":[{\"expressionType\":\"SQL\",\"sqlExpression\":\"COUNT(DISTINCT studentid)\",\"column\":null,\"aggregate\":null,\"isNew\":false,\"hasCustomLabel\":true,\"label\":\"Student count\",\"optionName\":\"metric_rhl93vre2j_9vkb44ykfvj\"}],\"annotation_layers\":[],\"row_limit\":50000,\"timeseries_limit\":0,\"order_desc\":true,\"url_params\":{},\"custom_params\":{},\"custom_form_data\":{}}],\"form_data\":{\"viz_type\":\"treemap_v2\",\"datasource\":\"55__table\",\"slice_id\":153,\"time_range_endpoints\":[\"inclusive\",\"exclusive\"],\"time_range\":\"No filter\",\"groupby\":[\"Year of Study\",\"Category\",\"Dimension\"],\"metric\":{\"expressionType\":\"SQL\",\"sqlExpression\":\"COUNT(DISTINCT studentid)\",\"column\":null,\"aggregate\":null,\"isNew\":false,\"hasCustomLabel\":true,\"label\":\"Student count\",\"optionName\":\"metric_rhl93vre2j_9vkb44ykfvj\"},\"row_limit\":50000,\"adhoc_filters\":[{\"clause\":\"WHERE\",\"comparator\":\"Un-defined\",\"expressionType\":\"SIMPLE\",\"filterOptionName\":\"filter_d8k6lj29qm_rz1vel4kgk\",\"isExtra\":false,\"isNew\":false,\"operator\":\"!=\",\"operatorId\":\"NOT_EQUALS\",\"sqlExpression\":null,\"subject\":\"Category\"},{\"clause\":\"WHERE\",\"expressionType\":\"SIMPLE\",\"comparator\":[\"Gender\"],\"operator\":\"IN\",\"subject\":\"DynamicDimension\",\"isExtra\":true,\"filterOptionName\":\"dda3c39bdcd240098c4c39a1681f8169\"},{\"clause\":\"WHERE\",\"expressionType\":\"SIMPLE\",\"comparator\":[\"Bachelor\"],\"operator\":\"IN\",\"subject\":\"Program\",\"isExtra\":true,\"filterOptionName\":\"b4de5758133b1e879427e5927047ac84\"}],\"color_scheme\":\"supersetColors\",\"show_labels\":true,\"show_upper_labels\":true,\"label_type\":\"key_value\",\"number_format\":\"SMART_NUMBER\",\"date_format\":\"smart_date\",\"extra_form_data\":{},\"force\":false,\"result_format\":\"json\",\"result_type\":\"full\"},\"result_format\":\"json\",\"result_type\":\"full\"}",
+                            "slice_name": "Student Progression - Credit Completion rate",
+                            "viz_type": "treemap_v2"
+                        }
+                    },
+                    {
+                        "__Slice__": {
+                            "cache_timeout": null,
+                            "datasource_name": "public.Student Progression Model",
+                            "datasource_type": "table",
+                            "id": 26,
+                            "params": "{\"adhoc_filters\": [{\"clause\": \"WHERE\", \"comparator\": \"Un-defined\", \"expressionType\": \"SIMPLE\", \"filterOptionName\": \"filter_d8k6lj29qm_rz1vel4kgk\", \"isExtra\": false, \"isNew\": false, \"operator\": \"!=\", \"operatorId\": \"NOT_EQUALS\", \"sqlExpression\": null, \"subject\": \"Category\"}], \"aggregateFunction\": \"Sum\", \"colOrder\": \"key_a_to_z\", \"colSubtotalPosition\": false, \"colTotals\": true, \"combineMetric\": false, \"conditional_formatting\": [], \"datasource\": \"55__table\", \"date_format\": \"smart_date\", \"extra_form_data\": {}, \"groupbyColumns\": [\"Year of Study\"], \"groupbyRows\": [\"Category\", \"Dimension\"], \"metrics\": [{\"aggregate\": null, \"column\": null, \"expressionType\": \"SQL\", \"hasCustomLabel\": true, \"isNew\": false, \"label\": \"Student count\", \"optionName\": \"metric_rpoagaxiipl_nsm76lyqho8\", \"sqlExpression\": \"COUNT(DISTINCT studentid)\"}], \"metricsLayout\": \"COLUMNS\", \"order_desc\": false, \"rowOrder\": \"key_a_to_z\", \"rowSubtotalPosition\": false, \"rowTotals\": false, \"row_limit\": 10000, \"slice_id\": 154, \"time_grain_sqla\": \"P1D\", \"time_range\": \"No filter\", \"time_range_endpoints\": [\"inclusive\", \"exclusive\"], \"transposePivot\": false, \"valueFormat\": \",d\", \"viz_type\": \"pivot_table_v2\", \"remote_id\": 26, \"datasource_name\": \"Student Progression Model\", \"schema\": \"public\", \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                            "query_context": "{\"datasource\":{\"id\":55,\"type\":\"table\"},\"force\":false,\"queries\":[{\"time_range\":\"No filter\",\"filters\":[{\"col\":\"Category\",\"op\":\"!=\",\"val\":\"Un-defined\"},{\"col\":\"DynamicDimension\",\"op\":\"IN\",\"val\":[\"Gender\"]},{\"col\":\"Program\",\"op\":\"IN\",\"val\":[\"Master\"]}],\"extras\":{\"time_grain_sqla\":\"P1D\",\"time_range_endpoints\":[\"inclusive\",\"exclusive\"],\"having\":\"\",\"having_druid\":[],\"where\":\"\"},\"applied_time_extras\":{},\"columns\":[\"Year of Study\",\"Category\",\"Dimension\"],\"metrics\":[{\"aggregate\":null,\"column\":null,\"expressionType\":\"SQL\",\"hasCustomLabel\":true,\"isNew\":false,\"label\":\"Student count\",\"optionName\":\"metric_rpoagaxiipl_nsm76lyqho8\",\"sqlExpression\":\"COUNT(DISTINCT studentid)\"}],\"orderby\":[[{\"aggregate\":null,\"column\":null,\"expressionType\":\"SQL\",\"hasCustomLabel\":true,\"isNew\":false,\"label\":\"Student count\",\"optionName\":\"metric_rpoagaxiipl_nsm76lyqho8\",\"sqlExpression\":\"COUNT(DISTINCT studentid)\"},true]],\"annotation_layers\":[],\"row_limit\":10000,\"timeseries_limit\":0,\"order_desc\":false,\"url_params\":{},\"custom_params\":{},\"custom_form_data\":{}}],\"form_data\":{\"viz_type\":\"pivot_table_v2\",\"datasource\":\"55__table\",\"slice_id\":154,\"time_range_endpoints\":[\"inclusive\",\"exclusive\"],\"time_grain_sqla\":\"P1D\",\"time_range\":\"No filter\",\"groupbyColumns\":[\"Year of Study\"],\"groupbyRows\":[\"Category\",\"Dimension\"],\"metrics\":[{\"aggregate\":null,\"column\":null,\"expressionType\":\"SQL\",\"hasCustomLabel\":true,\"isNew\":false,\"label\":\"Student count\",\"optionName\":\"metric_rpoagaxiipl_nsm76lyqho8\",\"sqlExpression\":\"COUNT(DISTINCT studentid)\"}],\"metricsLayout\":\"COLUMNS\",\"adhoc_filters\":[{\"clause\":\"WHERE\",\"comparator\":\"Un-defined\",\"expressionType\":\"SIMPLE\",\"filterOptionName\":\"filter_d8k6lj29qm_rz1vel4kgk\",\"isExtra\":false,\"isNew\":false,\"operator\":\"!=\",\"operatorId\":\"NOT_EQUALS\",\"sqlExpression\":null,\"subject\":\"Category\"},{\"clause\":\"WHERE\",\"expressionType\":\"SIMPLE\",\"comparator\":[\"Gender\"],\"operator\":\"IN\",\"subject\":\"DynamicDimension\",\"isExtra\":true,\"filterOptionName\":\"dda3c39bdcd240098c4c39a1681f8169\"},{\"clause\":\"WHERE\",\"expressionType\":\"SIMPLE\",\"comparator\":[\"Master\"],\"operator\":\"IN\",\"subject\":\"Program\",\"isExtra\":true,\"filterOptionName\":\"e39797617e02beccffe36496a2b7f196\"}],\"row_limit\":10000,\"order_desc\":false,\"aggregateFunction\":\"Sum\",\"rowTotals\":false,\"colTotals\":true,\"transposePivot\":false,\"combineMetric\":false,\"valueFormat\":\",d\",\"date_format\":\"smart_date\",\"rowOrder\":\"key_a_to_z\",\"colOrder\":\"key_a_to_z\",\"rowSubtotalPosition\":false,\"colSubtotalPosition\":false,\"conditional_formatting\":[],\"extra_form_data\":{},\"force\":false,\"result_format\":\"json\",\"result_type\":\"full\"},\"result_format\":\"json\",\"result_type\":\"full\"}",
+                            "slice_name": "Student Progression - Credit Completion rate",
+                            "viz_type": "pivot_table_v2"
+                        }
+                    }
+                ],
+                "slug": null
+            }
+        }
+    ],
+    "datasources": [
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "column_name": "Gender",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": null,
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 371,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 12,
+                            "type": "STRING",
+                            "uuid": "1eced8d6-bee4-4144-83cb-cc898d0791ca",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": null,
+                            "id": 18,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 12,
+                            "uuid": "6c7c6ea5-b346-434c-ad86-26bd52acc1c0",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 12, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select distinct \nname as \"Gender\"\nfrom public.hm_ret_gender_dim",
+                "table_name": "Gender Filter",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "DynamicDimension",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{\"warning_markdown\":null}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 365,
+                            "is_active": null,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 7,
+                            "type": "STRING",
+                            "uuid": "e3dab402-3b3c-46d7-b71c-3b860749efee",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": "{\"warning_markdown\":\"\"}",
+                            "id": 13,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 7,
+                            "uuid": "d60f9276-ff96-48ad-9992-1907810f0266",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 7, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select \n'Year of Entry' as \"DynamicDimension\"\nUNION \nselect \n'Year of Study'\nUNION \nselect \n'Gender'\nUNION \nselect \n'Federal Cohort'\nUNION \nselect \n'Ethnicity'\nUNION \nselect \n'Enrollment Status'\nUNION \nselect \n'Age Group'\nUNION \nselect \n'ACT score'\nUNION \nselect \n'Took Remedial course(s)'\nUNION \nselect \n'High School GPA'\nUNION \nselect \n'Pell Recipient (1st year)'",
+                "table_name": "Retention Model Dimension values",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Dimension",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 372,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "30ff02d3-b067-4f7e-ae7a-1469ee668fc8",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "studentid",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 373,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "INT",
+                            "uuid": "ef37e9be-f80b-42e8-8ce1-375517b43eb4",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Year of Entry",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 374,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "INT",
+                            "uuid": "25ff6b11-885d-4e8f-ab9a-6fe022762236",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Year of Study",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 375,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "3b188d6a-a666-4010-94e5-675f46d2c858",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Gender",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 376,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "a97ebfab-51cc-4036-aab3-8b5ff399c3df",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Federal Cohort",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 377,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "ce3e279d-c648-48ab-8486-49ea4907cc88",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Ethnicity",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 378,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "357c1d6b-e22d-4704-b916-700c8ff35fcf",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Enrollment Status",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 379,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "a7784ee8-1c3c-4e3c-89fd-e81696015026",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Age Group",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 380,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "f4a750e1-3630-43ea-bdd6-38b578c47349",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Residency Status",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 381,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "dd9a17fd-bac4-4565-a59c-26de082f2823",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "GPA credits, pre-Entry",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 382,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": null,
+                            "uuid": "4e8f2857-a80f-457d-818a-422cf4aaa556",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "ACT score",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 383,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "b44a328e-c0b6-45d5-a177-6431a1c93033",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Took Remedial course(s)",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 384,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "9700062c-5278-439a-a459-1ff8ca99749a",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "High School GPA",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 385,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "da3d8f6b-c73d-4f5e-a41d-64474c100234",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Pell Recipient (1st year)",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 386,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "f5ff49c2-7cd2-460e-b3f1-a2a823d741d2",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Cohort term",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 387,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "1065bbf7-2139-4037-a517-d6bd3df74ec8",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Dual / Summer enrollment",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 388,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "0e7df4cc-3729-4ce9-bb88-62d359836000",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "First generation",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 389,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "a12a162a-9224-4025-aa8a-9e0d6b05272a",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Math Prep",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 390,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "be6d54ed-4295-49c7-a13b-85f08c36d1fb",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "English Prep",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 391,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "a9a039d9-5ec5-48b1-922a-8405547a8046",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Program",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 392,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "867f3d2b-04fc-4cbf-b42b-59a73f3a54e7",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "cumulativecredithoursearned",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 393,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "FLOAT",
+                            "uuid": "9a7b8a2b-39d8-47b4-92e3-f21ea7f4d821",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "cumulativecredithoursattempted",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 394,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "FLOAT",
+                            "uuid": "51ada326-7c5f-49d9-8c67-749c22c4b631",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Credit completion rate",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 395,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "FLOAT",
+                            "uuid": "e102abac-726f-4d53-a4f6-a20b92f68399",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "column_name": "Category",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 396,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 13,
+                            "type": "STRING",
+                            "uuid": "433bef7a-cd26-4998-9767-2668904eab26",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T17:26:25"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": "{\"warning_markdown\":\"\"}",
+                            "id": 19,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 13,
+                            "uuid": "c8f3ca47-1754-4073-a523-f3ff4fddc644",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 13, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select \n{{ \"\\\"\" + \" ', '\".join(filter_values('DynamicDimension')) + \"\\\"\"}} as \"Dimension\",\n--\"Gender\" as \"Dimension\",\nx.\"studentid\",\nx.\"Year of Entry\",\ncast(x.\"Year of Study\" as text),\nx.\"Gender\",\ncoalesce(x.\"Federal Cohort\", 'No Cohort') as \"Federal Cohort\",\nx.\"Ethnicity\" as \"Ethnicity\",\nx.\"Enrollment Status\",\nx.\"Age Group\",\n--x.\"Credits taken, First fall\",\nx.\"Residency Status\",\nx.\"GPA credits, pre-Entry\",\nx.\"ACT score\",\nx.\"Took Remedial course(s)\",\nx.\"High School GPA\",\nx.\"Pell Recipient (1st year)\",\nx.\"Cohort term\",\nx.\"Dual / Summer enrollment\",\nx.\"First generation\",\nx.\"Math Prep\",\nx.\"English Prep\",\nx.\"Program\",\nx.\"cumulativecredithoursearned\",\nx.cumulativecredithoursattempted,\nx.\"Credit completion rate\",\ncase \nwhen x.\"Credit completion rate\" >= 0.0001 and x.\"Credit completion rate\" <= 0.7 then 'Fallen Behind'\nwhen x.\"Credit completion rate\" > 0.7 and x.\"Credit completion rate\" <= 0.9 then 'Normal Progression'\nwhen x.\"Credit completion rate\" > 0.9 and x.\"Credit completion rate\" <= 1 then 'Accalerated Progression'\nelse 'Un-defined' end as \"Category\"\nfrom \n\n(select\nt1.studentid,\nt1.studentenrollmentperiodid,\nt45.year as \"Year of Entry\",\nt44.year as \"Year of Study\", \nt9.name as \"Gender\", \nconcat(t6.degreegroup,'-',t7.name) as \"Federal Cohort\", -- Revisit , t7.code = F,H,L,Q\nt8.name as \"Ethnicity\",\nt7.name as  \"Enrollment Status\",\ncase \n\t\twhen t1.age < 17 then '<17' \n\t\twhen t1.age >= 18 and t1.age <= 23 then '18-23' \n\t\twhen t1.age >= 24 and t1.age <= 29 then '24-29' \n\t\twhen t1.age >= 30 and t1.age <= 35 then '30-35' \n\t\twhen t1.age >= 36 and t1.age <= 40 then '36-40'\n\t\twhen t1.age >= 41 and t1.age <= 45 then '41-45'\n\t\twhen t1.age >= 46 and t1.age <= 50 then '46-50'\n\t\telse '>50' end as \"Age Group\",\n\n-- case \n-- \t\twhen t1.studenttermcredithoursattempted  < 12 then '<12' \n-- \t\twhen t1.studenttermcredithoursattempted >= 12 and t1.studenttermcredithoursattempted <= 14 then '12-14' \n-- \t\twhen t1.studenttermcredithoursattempted > 14 then '>14' end as \"Credits taken, First fall\",\n\t\t\n'' as  \"Residency Status\", -- Placeholder, no column in DB\nt1.studenttermpreentrygpacredits as \"GPA credits, pre-Entry\", -- all null values\n\ncase \n\t\twhen t1.act_score <= 20 then 'ACT 20 or less' \n\t\twhen t1.act_score >= 21 and t1.act_score <= 25 then 'ACT 21-25' \n\t\twhen t1.act_score >= 26 and t1.act_score <= 30 then 'ACT 26-29' \n\t\twhen t1.age >= 30 then 'ACT 30 or more'\n\t\telse 'No ACT' end  as \"ACT score\",\n\ncase \nwhen t1.remedialflag = 1 then 'Remedial' \nwhen t1.remedialflag = 0 then 'No Remedial' else 'Undefined' end as \"Took Remedial course(s)\", \n\ncase \nwhen t1.hsgpa >= 0.00 and t1.hsgpa <= 1.99 then '0.00-1.99'\nwhen t1.hsgpa >= 2.00 and t1.hsgpa <= 2.49 then '2.00-2.49'\nwhen t1.hsgpa >= 2.50 and t1.hsgpa <= 2.99 then '2.50-2.99'\nwhen t1.hsgpa >= 3.00 and t1.hsgpa <= 3.49 then '3.00-3.49'\nwhen t1.hsgpa >= 3.50 and t1.hsgpa <= 3.99 then '3.50-3.99'\nwhen t1.hsgpa >= 4.00 and t1.hsgpa <= 4.49 then '4.00-4.49'\nwhen t1.hsgpa >= 4.50 and t1.hsgpa <= 4.99 then '4.50-4.99'\nwhen t1.hsgpa >= 5.00 and t1.hsgpa <= 5.49 then '5.00-5.49'\nwhen t1.hsgpa >= 5.50 and t1.hsgpa <= 5.99 then '5.50-5.99'\nwhen t1.hsgpa >= 6.00 and t1.hsgpa <= 6.49 then '6.00-6.49'\nwhen t1.hsgpa >= 6.50 and t1.hsgpa <= 6.99 then '6.50-6.99'\nwhen t1.hsgpa >= 7.00 and t1.hsgpa <= 7.49 then '7.00-7.49'\nwhen t1.hsgpa >= 7.50 and t1.hsgpa <= 7.99 then '7.50-7.99'\nelse '>=8.00' end as \"High School GPA\",\n\n\ncase when t1.pellrecepient = 'N' then 'No' when t1.pellrecepient = 'Y' then 'Yes' else 'Undefined'\nend as \"Pell Recipient (1st year)\",\n\nt3.name as \"Cohort term\",\nt1.dualenrollmentflag as \"Dual / Summer enrollment\",\nt1.firstgenerationflag as \"First generation\",\nt1.mathprepflag as \"Math Prep\",\nt1.englishprepflag as \"English Prep\",\nt6.degreegroup as \"Program\",\nt1.state,\nsum(cumulativecredithoursearned) as cumulativecredithoursearned,\nsum(cumulativecredithoursattempted) as cumulativecredithoursattempted,\nsum(cumulativecredithoursearned)/case when sum(cumulativecredithoursattempted) = 0 then 1 else sum(cumulativecredithoursattempted) end as \"Credit completion rate\"\n\n\nfrom ret_stdnt_fact t1\nleft outer join public.hm_ret_terms_dim t3 on (t1.cohort_term_key =t3.skey)\nleft outer join public.hm_ret_year_dim t44 on t1.year_of_study_key =t44.skey\nleft outer join public.hm_ret_year_dim t45 on t1.year_of_entry_key =t45.skey\nleft outer join public.hm_ret_degreegroup_dim t6 on t1.degreegroup_key = t6.skey\nleft outer join public.hm_ret_enrlstat_dim t7 on t1.enrollstatus_key = t7.skey\nleft outer join public.hm_ret_ethnicities_dim t8 on t1.ethnicities_key = t8.skey\nleft outer join public.hm_ret_gender_dim t9 on t1.gender_key = t9.skey\n\nwhere \n--t45.year > 2017 and t45.year <> 2023\nt1.year_of_entry_key > 118 and t1.year_of_study_key < 124 --and t1.studentid = 46365\ngroup by \nt1.studentid,\nt1.studentenrollmentperiodid,\nt44.year,\nt45.year,\nt9.name,\nconcat(t6.degreegroup,' ',t7.name),\nt8.name,\nt7.name,\nt1.age,\n-- t1.studenttermcredithoursattempted,\nt1.studenttermpreentrygpacredits,\nt1.act_score,\nt1.remedialflag,\nt1.hsgpa,\nt1.pellrecepient,\nt3.name,\nt1.dualenrollmentflag,\nt1.firstgenerationflag,\nt1.mathprepflag,\nt1.englishprepflag,\nt6.degreegroup,\nt1.state ) x\n\n--where x.\"Credit completion rate\" > 0.9",
+                "table_name": "Student Progression Model",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "column_name": "Program",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": null,
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 366,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 8,
+                            "type": "STRING",
+                            "uuid": "461b797b-bf43-4850-ab86-6966958db30d",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": null,
+                            "id": 14,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 8,
+                            "uuid": "c9bde5f9-ecb1-4690-807e-4deeb47461b7",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 8, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select \nt6.degreegroup as \"Program\"\nfrom public.hm_ret_degreegroup_dim t6\norder by 1",
+                "table_name": "Program Filter",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "column_name": "Enrollment Status",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": null,
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 364,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 6,
+                            "type": "STRING",
+                            "uuid": "5852bfe4-7b38-4f1e-ba05-7dd5268b4b82",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": null,
+                            "id": 12,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 6,
+                            "uuid": "6e82ef24-5019-4493-bc34-e841e2fcc08d",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 6, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select \nname as  \"Enrollment Status\"\nfrom \npublic.hm_ret_enrlstat_dim",
+                "table_name": "Enrollment Status Filter",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "column_name": "Year of Entry",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 368,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 10,
+                            "type": "INT",
+                            "uuid": "7b145f64-cadc-4512-abd2-56905d35952e",
+                            "verbose_name": null
+                        }
+                    },
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "column_name": "Year of Study",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 369,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 10,
+                            "type": "INT",
+                            "uuid": "6294e01e-ef3d-415a-a07c-0956662da7f2",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": "{\"warning_markdown\":\"\"}",
+                            "id": 16,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 10,
+                            "uuid": "1699e2f6-23c6-4876-b570-9dc9d6679c52",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 10, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select distinct \nyear as \"Year of Entry\",\ncast(year as text) as \"Year of Study\"\nfrom public.hm_ret_year_dim\nwhere year >= 2017 and   year <= 2022",
+                "table_name": "Year Filter",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "column_name": "Took Remedial course(s)",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": null,
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 363,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 5,
+                            "type": "STRING",
+                            "uuid": "9d250fa4-27b3-492e-a9d0-051e7f8fc5fc",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": null,
+                            "id": 11,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 5,
+                            "uuid": "9f1421c4-8eba-44e5-b6ae-9187a5df2ecd",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 5, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select\nDISTINCT \n\ncase \nwhen t1.remedialflag = 1 then 'Remedial' \nwhen t1.remedialflag = 0 then 'No Remedial' else 'Undefined' end as \"Took Remedial course(s)\"\n\nfrom ret_stdnt_fact t1\norder by 1",
+                "table_name": "Took Remedial Filter",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "column_name": "Ethnicity",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": null,
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 367,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 9,
+                            "type": "STRING",
+                            "uuid": "e9050d5c-1b0b-43e5-b6c9-637a7864e89f",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": null,
+                            "id": 15,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 9,
+                            "uuid": "bc296093-466b-40d3-a026-e8bc1be9b195",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 9, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "-- Note: Unless you save your query, these tabs will NOT persist if you clear your cookies or change browsers.\r\nselect distinct name as \"Ethnicity\" from public.hm_ret_ethnicities_dim",
+                "table_name": "Ethinicity Filter",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "column_name": "Age Group",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": "{}",
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 362,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 4,
+                            "type": "STRING",
+                            "uuid": "d4615f8e-17f9-4ac5-8269-a5c935f130ea",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:22"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": "{\"warning_markdown\":\"\"}",
+                            "id": 10,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 4,
+                            "uuid": "11b13fd1-7b11-4c16-ad5a-b66b69854bbb",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 4, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select\nDISTINCT \n\ncase \n\t\twhen t1.age < 17 then '<17' \n\t\twhen t1.age >= 18 and t1.age <= 23 then '18-23' \n\t\twhen t1.age >= 24 and t1.age <= 29 then '24-29' \n\t\twhen t1.age >= 30 and t1.age <= 35 then '30-35' \n\t\twhen t1.age >= 36 and t1.age <= 40 then '36-40'\n\t\twhen t1.age >= 41 and t1.age <= 45 then '41-45'\n\t\twhen t1.age >= 46 and t1.age <= 50 then '46-50'\n\t\telse '>50' end as \"Age Group\"\n\n\n\nfrom ret_stdnt_fact t1",
+                "table_name": "Age Group Filter",
+                "template_params": null
+            }
+        },
+        {
+            "__SqlaTable__": {
+                "cache_timeout": null,
+                "columns": [
+                    {
+                        "__TableColumn__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "column_name": "ACT score",
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "description": null,
+                            "expression": null,
+                            "extra": null,
+                            "filterable": true,
+                            "groupby": true,
+                            "id": 370,
+                            "is_active": true,
+                            "is_dttm": false,
+                            "python_date_format": null,
+                            "table_id": 11,
+                            "type": "STRING",
+                            "uuid": "b4762cda-84ed-45ea-8485-6d6bf13a0fcd",
+                            "verbose_name": null
+                        }
+                    }
+                ],
+                "database_id": 3,
+                "default_endpoint": null,
+                "description": null,
+                "extra": null,
+                "fetch_values_predicate": null,
+                "filter_select_enabled": false,
+                "main_dttm_col": null,
+                "metrics": [
+                    {
+                        "__SqlMetric__": {
+                            "changed_by_fk": 1,
+                            "changed_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "created_by_fk": 1,
+                            "created_on": {
+                                "__datetime__": "2022-06-08T16:50:23"
+                            },
+                            "d3format": null,
+                            "description": null,
+                            "expression": "count(*)",
+                            "extra": null,
+                            "id": 17,
+                            "metric_name": "count",
+                            "metric_type": null,
+                            "table_id": 11,
+                            "uuid": "29f5e278-7002-4258-b18d-91e0eb18cae9",
+                            "verbose_name": null,
+                            "warning_text": null
+                        }
+                    }
+                ],
+                "offset": 0,
+                "params": "{\"remote_id\": 11, \"database_name\": \"PostgreSQL_DW\", \"import_time\": 1654709185}",
+                "schema": "public",
+                "sql": "select\nDISTINCT \n\ncase \n\t\twhen t1.act_score <= 20 then 'ACT 20 or less' \n\t\twhen t1.act_score >= 21 and t1.act_score <= 25 then 'ACT 21-25' \n\t\twhen t1.act_score >= 26 and t1.act_score <= 30 then 'ACT 26-29' \n\t\twhen t1.age >= 30 then 'ACT 30 or more'\n\t\telse 'No ACT' end  as \"ACT score\"\n\nfrom ret_stdnt_fact t1\norder by 1",
+                "table_name": "ACT Score Filter",
+                "template_params": null
+            }
+        }
+    ]
+}
