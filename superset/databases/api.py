@@ -495,38 +495,42 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             df = database.get_df(result, schema_name)
             if df.empty:
                 return {}
-            group_table_name: object = df.groupby('table_name')
+            group_table_name = df.groupby(['target_schema_id', 'table_name'])
+            unq_schemas = df['target_schema_id'].unique()
             gb_groups = group_table_name.groups
             list_req = list(gb_groups.keys())
             if len(list_req) <= 0:
                 return {}
             table_payload: List[Dict[str, Any]] = []
+            payload_tables: List[Dict[str, Any]] = []
             for k in list_req:
                 payload_columns: List[Dict[str, Any]] = []
                 for i in range(len(df.loc[gb_groups[k]])):
-                    payload_columns.append(
-                        {
-                            "name": df.loc[gb_groups[k][i]]['col_name'],
-                            "type": df.loc[gb_groups[k][i]]['data_type'],
-                            "longType": df.loc[gb_groups[k][i]]['data_type'],
-                            "keys": [],
-                            "comment": None,
-                        }
-
-                    )
+                    payload_columns.append({
+                        "name": df.loc[gb_groups[k][i]]['col_name'],
+                        "type": df.loc[gb_groups[k][i]]['data_type'],
+                        "longType": df.loc[gb_groups[k][i]]['data_type'],
+                        "keys": [],
+                        "comment": None})
                 table = {
-                    "value": k,
+                    "value": df.loc[gb_groups[k][i]]['table_name'],
                     "schema": schema_name,
-                    "title": k,
-                    "label": k,
+                    "title": df.loc[gb_groups[k][i]]['table_name'],
+                    "label": df.loc[gb_groups[k][i]]['table_name'],
                     "type": 'table',
                     "extra": None,
-                    "columns": payload_columns,
+                    "columns": payload_columns}
+                payload_tables.append(table)
+            schema = {
+                "value": k[0],
+                "schema": schema_name,
+                "type": 'schema',
+                "tables": payload_tables,
 
-                }
-                table_payload.append(table)
+            }
+            table_payload.append(schema)
             table_final_payload = {
-                "tableLength": len(list_req),
+                "schemalength": len(unq_schemas),
                 "options": table_payload
             }
             return json_success(json.dumps(table_final_payload))
