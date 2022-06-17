@@ -437,8 +437,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
     def schemas_greeting(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
        return self.response(200, message="Hello")
 
-
-    ########################################## Get Database metadata #########################################
+    # Get Database metadata
     @expose("/<int:pk>/database_metadata/<schema_name>/")
     @protect()
     @safe
@@ -450,47 +449,97 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         log_to_statsd=False,
     )
     def database_metadata(
-      self, pk: int, schema_name: str, **kwargs: Any
-      ) -> FlaskResponse:
-      """Database metadata
-        ---
-        get:
-          description: Endpoint to fetch database metadata including tables & columns of each table
-          parameters:
-          - in: path
-            schema:
-              type: integer
-            name: pk
-            description: The database id
-          - in: path
-            schema:
-              type: string
-            name: schema_name
-            description: Table schema
-          responses:
-            200:
-              description: JSON database metadata
-              content:
-                application/json:
-                  schema:
-                    $ref: "#/components/schemas/TableMetadataResponseSchema"
-            400:
-              $ref: '#/components/responses/400'
-            401:
-              $ref: '#/components/responses/401'
-            404:
-              $ref: '#/components/responses/404'
-            422:
-              $ref: '#/components/responses/422'
-            500:
-              $ref: '#/components/responses/500'
-        """
-      database: Database = self.datamodel.get(pk)
-      database_tables_metadata = self.get_table_list(self,pk, schema_name, 'undefined')
-      if(database_tables_metadata != 'Not found'):
-        for tb in database_tables_metadata["options"]:
-          tb["columns"] = get_table_metadata(database, tb["value"], schema_name)["columns"]
-      return json_success(json.dumps(database_tables_metadata))
+        self, pk: int, schema_name: str, **kwargs: Any
+    ) -> FlaskResponse:
+        """Database metadata
+          ---
+          get:
+            description: Endpoint to fetch database metadata including tables & columns of each table
+            parameters:
+            - in: path
+              schema:
+                type: integer
+              name: pk
+              description: The database id
+            - in: path
+              schema:
+                type: string
+              name: schema_name
+              description: Table schema
+            responses:
+              200:
+                description: JSON database metadata
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/TableMetadataResponseSchema"
+              400:
+                $ref: '#/components/responses/400'
+              401:
+                $ref: '#/components/responses/401'
+              404:
+                $ref: '#/components/responses/404'
+              422:
+                $ref: '#/components/responses/422'
+              500:
+                $ref: '#/components/responses/500'
+          """
+        try:
+            database: Database = self.datamodel.get(pk)
+            if not database:
+                return self.response_404()
+            result = database.select_star(
+                'target_table_col_def', schema_name, latest_partition=True,
+                show_cols=True
+            )
+            df = database.get_df(result, schema_name)
+            if df.empty:
+                return {}
+            group_table_name: object = df.groupby('table_name')
+            gb_groups = group_table_name.groups
+            list_req = list(gb_groups.keys())
+            if len(list_req) <= 0:
+                return {}
+            table_payload: List[Dict[str, Any]] = []
+            for k in list_req:
+                payload_columns: List[Dict[str, Any]] = []
+                for i in range(len(df.loc[gb_groups[k]])):
+                    payload_columns.append(
+                        {
+                            "name": df.loc[gb_groups[k][i]]['col_name'],
+                            "type": df.loc[gb_groups[k][i]]['data_type'],
+                            "longType": df.loc[gb_groups[k][i]]['data_type'],
+                            "keys": [],
+                            "comment": None,
+                        }
+
+                    )
+                table = {
+                    "value": k,
+                    "schema": schema_name,
+                    "title": k,
+                    "label": k,
+                    "type": 'table',
+                    "extra": None,
+                    "columns": payload_columns,
+
+                }
+                table_payload.append(table)
+            table_final_payload = {
+                "tableLength": len(list_req),
+                "options": table_payload
+            }
+            return json_success(json.dumps(table_final_payload))
+        except SQLAlchemyError as ex:
+            self.incr_stats("error", self.table_metadata.__name__)
+        except Exception as ex:
+            logger.error(
+                "Error when fetching table and column metadata %s: %s",
+                self.__class__.__name__,
+                str(ex),
+                exc_info=True,
+            )
+            return self.response_422(message=str(ex))
 
     @expose("/<int:pk>/schemas/")
     @protect()
