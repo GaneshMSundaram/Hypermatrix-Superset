@@ -491,10 +491,12 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             result = database.select_star(
                 'vw_table_col_metadata', schema_name, latest_partition=True,
                 show_cols=True
+
             )
             df = database.get_df(result, schema_name)
             if df.empty:
                 return {}
+
             group_grid_name = df.groupby(['gridConfigurationId'])
             unq_schemas = df['gridConfigurationId'].unique()
             schema_name_payload: List[Dict[str, Any]] = []
@@ -536,6 +538,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                 "schemalength": len(unq_schemas),
                 "options": schema_name_payload
             }
+
 
             return json_success(json.dumps(table_final_payload))
         except SQLAlchemyError as ex:
