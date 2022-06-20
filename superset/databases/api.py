@@ -489,46 +489,56 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             if not database:
                 return self.response_404()
             result = database.select_star(
-                'target_table_col_def', schema_name, latest_partition=True,
+                'vw_table_col_metadata', schema_name, latest_partition=True,
                 show_cols=True
+
             )
             df = database.get_df(result, schema_name)
             if df.empty:
                 return {}
-            group_table_name: object = df.groupby('table_name')
-            gb_groups = group_table_name.groups
-            list_req = list(gb_groups.keys())
-            if len(list_req) <= 0:
-                return {}
-            table_payload: List[Dict[str, Any]] = []
-            for k in list_req:
-                payload_columns: List[Dict[str, Any]] = []
-                for i in range(len(df.loc[gb_groups[k]])):
-                    payload_columns.append(
-                        {
-                            "name": df.loc[gb_groups[k][i]]['col_name'],
-                            "type": df.loc[gb_groups[k][i]]['data_type'],
-                            "longType": df.loc[gb_groups[k][i]]['data_type'],
-                            "keys": [],
-                            "comment": None,
-                        }
 
-                    )
-                table = {
-                    "value": k,
-                    "schema": schema_name,
-                    "title": k,
-                    "label": k,
-                    "type": 'table',
-                    "extra": None,
-                    "columns": payload_columns,
+            group_grid_name = df.groupby(['gridConfigurationId'])
+            unq_schemas = df['gridConfigurationId'].unique()
+            schema_name_payload: List[Dict[str, Any]] = []
+
+            for name, group in group_grid_name:
+                group_table_name = group.groupby('targetTableName')
+                payload_tables: List[Dict[str, Any]] = []
+                for (idx, table_row) in group_table_name:
+                    payload_columns: List[Dict[str, Any]] = []
+                    for i, row in table_row.iterrows():
+                        grid_name = row['gridConfigurationName']
+                        payload_columns.append({
+                            "name": row['columnName'],
+                            "type": row['DataTypeName'],
+                            "longType": row['DataTypeName'],
+                            "keys": [],
+                            "comment": None})
+                    table_name = idx
+                    table = {
+                        "value": table_name,
+                        "schema": schema_name,
+                        "title": table_name,
+                        "label": table_name,
+                        "type": 'table',
+                        "extra": None,
+                        "columns": payload_columns}
+
+                    payload_tables.append(table)
+                schema = {
+                    "value": name,
+                    "schema": grid_name,
+                    "type": 'schema',
+                    "tables": payload_tables,
 
                 }
-                table_payload.append(table)
+
+                schema_name_payload.append(schema)
             table_final_payload = {
-                "tableLength": len(list_req),
-                "options": table_payload
+                "schemalength": len(unq_schemas),
+                "options": schema_name_payload
             }
+
             return json_success(json.dumps(table_final_payload))
         except SQLAlchemyError as ex:
             self.incr_stats("error", self.table_metadata.__name__)
