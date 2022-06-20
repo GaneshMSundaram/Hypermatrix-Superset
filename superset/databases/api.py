@@ -489,7 +489,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             if not database:
                 return self.response_404()
             result = database.select_star(
-                'target_table_col_def_1', schema_name, latest_partition=True,
+                'vw_table_col_metadata', schema_name, latest_partition=True,
                 show_cols=True
             )
             df = database.get_df(result, schema_name)
