@@ -94,6 +94,7 @@ from superset.views.base_api import (
 import urllib.request
 
 from superset.views.core import Superset
+from superset.databases.postgresdao import PostgresDatabaseDAO
 
 
 logger = logging.getLogger(__name__)
@@ -455,17 +456,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
           ---
           get:
             description: Endpoint to fetch database metadata including tables & columns of each table
-            parameters:
-            - in: path
-              schema:
-                type: integer
-              name: pk
-              description: The database id
-            - in: path
-              schema:
-                type: string
-              name: schema_name
-              description: Table schema
             responses:
               200:
                 description: JSON database metadata
@@ -485,15 +475,8 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                 $ref: '#/components/responses/500'
           """
         try:
-            database: Database = self.datamodel.get(pk)
-            if not database:
-                return self.response_404()
-            result = database.select_star(
-                'vw_table_col_metadata', schema_name, latest_partition=True,
-                show_cols=True
-
-            )
-            df = database.get_df(result, schema_name)
+            schema_name = "kb_config"
+            df = PostgresDatabaseDAO.get_dataframe(self)
             if df.empty:
                 return {}
 
