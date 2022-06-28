@@ -495,6 +495,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                         grid_name = row['gridConfigurationName']
                         payload_columns.append({
                             "name": row['columnName'],
+                            "label": row['labelName'],
                             "type": row['DataTypeName'],
                             "longType": row['DataTypeName'],
                             "keys": [],
