@@ -438,19 +438,21 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
     def schemas_greeting(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
        return self.response(200, message="Hello")
 
-    # Get Database metadata
-    @expose("/<int:pk>/database_metadata/<schema_name>/")
+       ########################################## Get Database metadata #########################################
+
+    @expose("/database_metadata/")
     @protect()
     @safe
     # @rison(database_schemas_query_schema)
     # @check_datasource_access
     @statsd_metrics
     @event_logger.log_this_with_context(
-        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}" f".database_metadata",
+        action=lambda self, *args,
+                      **kwargs: f"{self.__class__.__name__}" f".database_metadata",
         log_to_statsd=False,
     )
     def database_metadata(
-        self, pk: int, schema_name: str, **kwargs: Any
+        self, **kwargs: Any
     ) -> FlaskResponse:
         """Database metadata
           ---
