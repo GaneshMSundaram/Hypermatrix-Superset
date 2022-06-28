@@ -539,7 +539,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                 "options": schema_name_payload
             }
 
-
             return json_success(json.dumps(table_final_payload))
         except SQLAlchemyError as ex:
             self.incr_stats("error", self.table_metadata.__name__)
