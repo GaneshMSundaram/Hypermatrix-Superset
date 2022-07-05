@@ -34,6 +34,16 @@ import RefreshLabel from 'src/components/RefreshLabel';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import WarningIconWithTooltip from 'src/components/WarningIconWithTooltip';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionItemHeading,
+  AccordionItemButton,
+  AccordionItemPanel,
+} from 'react-accessible-accordion';
+
+// Demo styles, see 'Styles' section below for some notes on use.
+import 'react-accessible-accordion/dist/fancy-example.css';
 const tableItemArray: (TableOption[]) = [];
 
 const TableSelectorWrapper = styled.div`
@@ -171,34 +181,19 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
   const [tableOptions, setTableOptions] = useState<TableOption[]>([]);
   const { addSuccessToast } = useToasts();
 
-  useEffect(() => {
-    // reset selections
-    if (database === undefined) {
-      setCurrentDatabase(undefined); 
-      setCurrentSchema(undefined);
-      setCurrentTable(undefined);
-    }
-  }, [database]);
 
   useEffect(() => {
     if (currentDatabase && currentSchema) {
       setLoadingTables(true);
-      const encodedSchema = encodeURIComponent(currentSchema);
       const forceRefresh = refresh !== previousRefresh;
-      // TODO: Would be nice to add pagination in a follow-up. Needs endpoint changes.
-      const endpoint = encodeURI(
-        `/api/v1/database/${currentDatabase.id}/database_metadata/${encodedSchema}/`,
-      );
-
       if (previousRefresh !== refresh) {
         setPreviousRefresh(refresh);
       }
 
-      SupersetClient.get({ endpoint })
-        .then(({ json }) => {
+        const schemaTablesData = JSON.parse(sessionStorage.getItem("schemaTablesData"));        
           const options: TableOption[] = [];
           let currentTable;
-          json.options.forEach((table: Table) => {
+          schemaTablesData.forEach((table: Table) => {
             const option = {
               value: table.value,
               label: <TableOption table={table} />,
@@ -210,18 +205,12 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
             }
           });
           if (onTablesLoad) {
-            onTablesLoad(json.options);
+            onTablesLoad(schemaTablesData);
           }
           setTableOptions(options);
           setCurrentTable(currentTable);
           setLoadingTables(false);
-          expandCollapse();
-          if (forceRefresh) addSuccessToast('List updated');
-        })
-        .catch(e => {
-          setLoadingTables(false);
-          handleError(t('There was an error loading the tables'));
-        });
+          if (forceRefresh) addSuccessToast('List updated');         
     }
     // We are using the refresh state to re-trigger the query
     // previousRefresh should be out of dependencies array
@@ -248,7 +237,6 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     return (
       <div className="section">
         <span className="select tableColumn">{select}</span>
-        <span className="refresh">{refreshBtn}</span>
       </div>
     );
   }
@@ -267,7 +255,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       onTableChange(table?.value, currentSchema);
     }
     arrowCheck();
-    var checkboxes = document.getElementsByName(`${table.text}`);
+    var checkboxes = document.getElementsByName(`${table?.text}`);
     if (evt.target.checked) {
       for (var i = 0; i < checkboxes.length; i++) {
         checkboxes[i].checked = true;
@@ -343,9 +331,9 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
   const internalSchemaChange = (schema?: string) => {
     setCurrentSchema(schema);
     if (onSchemaChange) {
-      onSchemaChange(schema);
+      onSchemaChange(schema);      
+      $(".ant-select-dropdown:not([class*='ant-select-dropdown-hidden'])").addClass("ant-select-dropdown-hidden");
     }
-    internalTableChange(undefined);
   };
 
   function renderDatabaseSelector() {
@@ -388,47 +376,45 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     );
 
     const select = (
-      <ul className="tablewrapper">
+      <Accordion>
         {tableOptions.map((item, index) => {
           return (
-            <li className='listContainer' key={index}>
-              <div className="tableSection collapsible">
-                <i className="fa fa-angle-up"></i>
-                <i className="fa fa-angle-down"></i>
-                <input
-                  type="checkbox"
-                  className='leftCheckBox'
-                  id={`custom-checkbox-${index}`}
-                  name="showhide"
-                  value={item.value}
-                  onChange={() => internalTableChange(event, item)}
-                />
-                <label htmlFor={`custom-checkbox-${index}`}>{item.text}</label>
-              </div>
-              <ul className='columnList'>
-              {item.label.props.table.columns.map((colData: any, colIndex: any) => {
-                return (
-                  <li key={colIndex}>
+            <AccordionItem>
+              <AccordionItemHeading>
+                <AccordionItemButton>
+                  <input
+                    type="checkbox"
+                    className='leftCheckBox'
+                    id={`custom-checkbox-${index}`}
+                    name="showhide"
+                    value={item.value}
+                    onChange={() => internalTableChange(event, item)}
+                  />
+                  <label htmlFor={`custom-checkbox-${index}`}>{item.text}</label>
+                </AccordionItemButton>
+              </AccordionItemHeading>
+              <AccordionItemPanel>
+                {item.label.props.table.columns.map((colData: any, colIndex: any) => {
+                  return (
                     <div className="tableSection">
                       <input
                         type="checkbox"
                         className='leftCheckBox'
                         id={`column-checkbox-${colData.name}`}
                         name={item.value}
-                        data-type = {colData.type}
-                        value= {`${colData.name}`}
+                        data-type={colData.type}
+                        value={`${colData.name}`}
                         onChange={() => tableSelection(event, index, tableOptions[index])}
                       />
                       <label htmlFor={`column-checkbox-${colData.name}`}>{colData.name}</label>
-                    </div></li>
-                )
-              })}
-              </ul>
-            </li>
-          );
+                    </div>
+                  )
+                })}
+              </AccordionItemPanel>
+            </AccordionItem>
+          )
         })}
-
-      </ul>
+      </Accordion>
     );
 
     const refreshLabel = !formMode && !readOnly && (

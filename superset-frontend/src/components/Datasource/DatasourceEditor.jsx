@@ -882,7 +882,7 @@ class DatasourceEditor extends React.PureComponent {
                     buttonStyle="tertiary"
                     onClick={this.syncMetadata}
                     className="sync-from-source"
-                    disabled={this.state.isEditMode}
+                    id='syncButton'                    
                   >
                     <i className="fa fa-database" />{' '}
                     {t('Sync columns from source')}
