@@ -466,9 +466,25 @@ div.Workspace {
   }
   .tableColumn{
     border: 1px solid #d9d9d9;
-    padding: 11px;
+    // padding: 11px;
     max-height: 660px;
     overflow-y: scroll;
+    .accordion{
+      border: none;
+    }
+    input[type='checkbox']{
+      top: 3px;
+      position: relative;
+      margin-right: 5px;
+    }
+    .accordion__panel{
+      padding-top: 0;
+      padding-left: 54px;
+    }
+    .accordion__button{
+      background-color: transparent;
+      padding: 10px;
+    }
   }
   .tableSection label{
     margin: 0 0 0 5px;

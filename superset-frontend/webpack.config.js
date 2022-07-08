@@ -302,6 +302,12 @@ const config = {
   module: {
     rules: [
       {
+        test: /\.m?js/,
+        resolve: {
+            fullySpecified: false
+        }
+      },
+      {
         test: /datatables\.net.*/,
         loader: 'imports-loader',
         options: {

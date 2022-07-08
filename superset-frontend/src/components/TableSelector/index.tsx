@@ -376,7 +376,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     );
 
     const select = (
-      <Accordion>
+      <Accordion allowZeroExpanded allowMultipleExpanded>
         {tableOptions.map((item, index) => {
           return (
             <AccordionItem>
