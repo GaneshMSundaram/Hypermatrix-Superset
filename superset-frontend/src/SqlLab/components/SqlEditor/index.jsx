@@ -700,7 +700,8 @@ class SqlEditor extends React.PureComponent {
       const payload = {
         dimensionData: dimensionDataArray,
         measureData: measureDataArray,
-        conditionData: this.state.dbQuery
+        conditionData:$('#sqlData').text()
+        // conditionData: this.state.dbQuery
       }
       console.log('Final Payload: ', payload)
     }
@@ -793,7 +794,7 @@ class SqlEditor extends React.PureComponent {
                 onQueryChange={this.updateDbQuery}
                 query={this.state.dbQuery}
               /> 
-              <pre>{formatQuery(this.state.dbQuery,'sql')}</pre>
+              <pre id='sqlData'>{formatQuery(this.state.dbQuery,'sql')}</pre>
               <pre>{formatQuery(this.state.dbQuery,'json')}</pre>              
             </div>
             <div className='generateQuery'><div id="generateQueryBtn" className='generateQueryBtn disabledBtn' onClick={() => this.generateQuery()}>Generate Query</div></div>
