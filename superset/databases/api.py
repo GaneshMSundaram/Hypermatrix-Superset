@@ -538,11 +538,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             )
             return self.response_422(message=str(ex))
 
-<<<<<<< Updated upstream
     @expose("/sqlbuilder_metadata/<sql_json>")
-=======
-    @expose("/sqlbuilder_metadata/")
->>>>>>> Stashed changes
     @protect()
     @safe
     # @rison(database_schemas_query_schema)
@@ -554,7 +550,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         log_to_statsd=False,
     )
     def sqlbuilder_metadata(
-<<<<<<< Updated upstream
         self, sql_json: str, **kwargs: Any
     ) -> FlaskResponse:
         """SQL Builder
@@ -588,82 +583,6 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         try:
             # print(json.load(sql_json))
             return json_success(json.dumps(SQLBuilder.build_sql(self, (sql_json))))
-=======
-        self, **kwargs: Any
-    ) -> FlaskResponse:
-        """Sqlbuilder_metadata
-          ---
-          get:
-            description: Endpoint to fetch database metadata including tables & columns of each table
-            responses:
-              200:
-                description: JSON database metadata
-                content:
-                  application/json:
-                    schema:
-                      $ref: "#/components/schemas/TableMetadataResponseSchema"
-              400:
-                $ref: '#/components/responses/400'
-              401:
-                $ref: '#/components/responses/401'
-              404:
-                $ref: '#/components/responses/404'
-              422:
-                $ref: '#/components/responses/422'
-              500:
-                $ref: '#/components/responses/500'
-          """
-        try:
-            schema_name = "kb_config"
-            df = PostgresDatabaseDAO.get_dataframe(self)
-            if df.empty:
-                return {}
-
-            group_grid_name = df.groupby(['gridConfigurationId'])
-            unq_schemas = df['gridConfigurationId'].unique()
-            schema_name_payload: List[Dict[str, Any]] = []
-
-            for name, group in group_grid_name:
-                group_table_name = group.groupby('targetTableName')
-                payload_tables: List[Dict[str, Any]] = []
-                for (idx, table_row) in group_table_name:
-                    payload_columns: List[Dict[str, Any]] = []
-                    for i, row in table_row.iterrows():
-                        grid_name = row['gridConfigurationName']
-                        payload_columns.append({
-                            "name": row['columnName'],
-                            "label": row['labelName'],
-                            "type": row['DataTypeName'],
-                            "longType": row['DataTypeName'],
-                            "keys": [],
-                            "comment": None})
-                    table_name = idx
-                    table = {
-                        "value": table_name,
-                        "schema": schema_name,
-                        "title": table_name,
-                        "label": table_name,
-                        "type": 'table',
-                        "extra": None,
-                        "columns": payload_columns}
-
-                    payload_tables.append(table)
-                schema = {
-                    "value": name,
-                    "schema": grid_name,
-                    "type": 'schema',
-                    "tables": payload_tables,
-
-                }
-
-                schema_name_payload.append(schema)
-            table_final_payload = {
-                "schemalength": len(unq_schemas),
-                "options": schema_name_payload
-            }
-
-            return json_success(json.dumps(table_final_payload))
->>>>>>> Stashed changes
         except SQLAlchemyError as ex:
             self.incr_stats("error", self.table_metadata.__name__)
         except Exception as ex:
