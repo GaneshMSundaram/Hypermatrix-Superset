@@ -54,7 +54,7 @@ from flask_appbuilder.security.views import (
 )
 from flask_appbuilder.widgets import ListWidget
 from flask_login import AnonymousUserMixin, LoginManager
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, null, or_
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.mapper import Mapper
@@ -1122,7 +1122,13 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
         if user.is_anonymous:
             public_role = current_app.config.get("AUTH_ROLE_PUBLIC")
             return [self.get_public_role()] if public_role else []
-        return user.roles
+        
+        roleList: List[Role] = []
+        role: Role = null
+        role.id = 1
+        role.name = 'Public'
+        roleList.append(role)
+        return roleList
 
     def get_guest_rls_filters(
         self, dataset: "BaseDatasource"
@@ -1410,3 +1416,22 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             if resource["type"] == resource_type.value and str(resource["id"]) == strid:
                 return True
         return False
+    
+    def load_user(self, pk):
+        user = self.get_user_by_id(int(pk))
+        
+        # userRole: List[Role] = []
+        # for rl in ['Admin', 'Gamma']:
+        #   role = self.find_role(rl)
+        #   userRole.append(role)
+        
+        # user.roles = userRole
+        print("Hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii9999999999657576599999", user)
+        return user
+
+    def load_user_jwt(self, pk):
+        user = self.load_user(pk)
+        # Set flask g.user to JWT user, we can't do it on before request
+        print("Hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii999999999999999", user)
+        g.user = user
+        return user
