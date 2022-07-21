@@ -582,7 +582,9 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
                 """
         try:
             # print(json.load(sql_json))
-            return json_success(json.dumps(SQLBuilder.build_sql(self, (sql_json))))
+            print(json.loads(sql_json))
+            return json_success(
+                json.dumps(SQLBuilder.build_sql(self, json.loads(sql_json))))
         except SQLAlchemyError as ex:
             self.incr_stats("error", self.table_metadata.__name__)
         except Exception as ex:

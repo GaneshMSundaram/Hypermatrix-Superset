@@ -30,52 +30,15 @@ class SQLBuilder:
     main_select = ""
     @staticmethod
     def build_sql(self, data):
-        data = {
-            "schemaName": "kb_bi_retn_dashboard",
-            "dimensionData": [
-                {
-                    "table": "kb_bi_ret_gender_dim",
-                    "columns": "gendername",
-                    "aliasName": "gendername"
-                },
-                {
-                    "table": "kb_bi_ret_stdnt_crs_fact",
-                    "columns": "age",
-                    "aliasName": "age"
-                },
-                {
-                    "table": "kb_bi_ret_course_dim",
-                    "columns": "code",
-                    "aliasName": "code"
-                }
-            ],
-            "measureData": [
-                {
-                    "table": "kb_bi_ret_stdnt_crs_fact",
-                    "columns": "enrolflag",
-                    "aliasName": "enrolflag",
-                    "operator2": "sum"
-                }
-            ],
-            "conditionData": "(kb_bi_ret_ethnicity_dim.ethnicityname = 'Asian' and (kb_bi_ret_gender_dim.gendername = 'Male' or (kb_bi_ret_ethnicity_dim.ethnicityname = 'Hispanic' and (kb_bi_ret_gender_dim.gendername = 'Female'))))"
-        }
-        print(data)
         table_lis = list()
         table_lis = get_tables(data['dimensionData'], table_lis)
-        print(table_lis)
-
         table_join_lis = list()
         table_lis = get_tables(data['measureData'], table_lis)
-        print(table_lis)
-
-        # select_list = [v for v in data['dimensionData'] if v['table'] == 'Students']
         where_clause = data['conditionData']
         global schema
         global main_select
         schema = data['schemaName']
 
-        z = 0
-        select_column = []
         db_uri = (
             current_app.config["SQLALCHEMY_KNOWLEDGE_DATABASE_URI"]
         )
@@ -96,7 +59,6 @@ class SQLBuilder:
             nodes_to_be_linked=table_lis)
         if len(table_lis) > 0:
             main_select = "Select "
-        print(main_select)
         z = 0
         sql2 = ""
         for x in join_paths_across:
@@ -171,6 +133,7 @@ class SQLBuilder:
         main_select = main_select[:-1] + " from (" + sql2 + ") where " + where_clause
         return main_select
 
+
 def get_table(index, table_list):
     return re.sub(r'[(].*', '', table_list[index])
 
@@ -191,14 +154,14 @@ def build_selectClause(select_list, join_column, table_name):
     joined_select_string = ""
     global main_select
     for w in select_list:
-        joined_select_string = w['columns'] + "  As " + w['aliasName'] + " , "
-        main_select = main_select + w['table'] + "." + w['aliasName'] + ","
+        joined_select_string = w['columns'] + "  As '" + w['aliasName'] + "' , "
+        main_select = main_select + w['table'] + ".'" + w['aliasName'] + "',"
 
     left_table_cols = join_column.split(",")
     for jc in left_table_cols:
         pjc = re.sub(r'.*[(]|[)]', '', jc)
         if select_list.count(pjc) == 0:
-            joined_select_string = joined_select_string + pjc + " as " + pjc + ","
+            joined_select_string = joined_select_string + pjc + " as '" + pjc + "',"
     return joined_select_string[:-1]
 
 
@@ -206,9 +169,9 @@ def build_aggregationClause(select_list):
     joined_select_string = ""
     global main_select
     for w in select_list:
-        joined_select_string = w['operator2'] + " (" + w['columns'] + ")  as " + w[
-            'aliasName'] + " , "
-        main_select = main_select + w['table'] + "." + w['aliasName'] + ","
+        joined_select_string = w['operator2'] + " (" + w['columns'] + ")  as '" + w[
+            'aliasName'] + "' ,"
+        main_select = main_select + w['table'] + ".'" + w['aliasName'] + "',"
     return joined_select_string[:-1]
 
 
