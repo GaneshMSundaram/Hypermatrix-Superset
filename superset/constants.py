@@ -129,6 +129,7 @@ MODEL_API_RW_METHOD_PERMISSION_MAP = {
     "get_data": "read",
     "schemas_greeting": "read",
     "database_metadata": "read",
+    "sqlbuilder_metadata": "read",
 }
 
 EXTRA_FORM_DATA_APPEND_KEYS = {

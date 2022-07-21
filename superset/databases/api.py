@@ -95,7 +95,7 @@ import urllib.request
 
 from superset.views.core import Superset
 from superset.databases.postgresdao import PostgresDatabaseDAO
-
+from superset.databases.sqlBuilder import SQLBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +116,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "validate_parameters",
         "schemas_greeting",
         "database_metadata",
+        "sqlbuilder_metadata"
     }
     resource_name = "database"
     class_permission_name = "Database"
@@ -526,6 +527,64 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             }
 
             return json_success(json.dumps(table_final_payload))
+        except SQLAlchemyError as ex:
+            self.incr_stats("error", self.table_metadata.__name__)
+        except Exception as ex:
+            logger.error(
+                "Error when fetching table and column metadata %s: %s",
+                self.__class__.__name__,
+                str(ex),
+                exc_info=True,
+            )
+            return self.response_422(message=str(ex))
+
+    @expose("/sqlbuilder_metadata/<sql_json>")
+    @protect()
+    @safe
+    # @rison(database_schemas_query_schema)
+    # @check_datasource_access
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args,
+                      **kwargs: f"{self.__class__.__name__}" f".sqlbuilder_metadata",
+        log_to_statsd=False,
+    )
+    def sqlbuilder_metadata(
+        self, sql_json: str, **kwargs: Any
+    ) -> FlaskResponse:
+        """SQL Builder
+                ---
+                get:
+                  description: Get database table metadata
+                  parameters:
+                  - in: path
+                    schema:
+                      type: string
+                    name: sql_json
+                    description: The SQL Json schema
+                  responses:
+                    200:
+                      description: Table metadata information
+                      content:
+                        application/json:
+                          schema:
+                            $ref: "#/components/schemas/TableMetadataResponseSchema"
+                    400:
+                      $ref: '#/components/responses/400'
+                    401:
+                      $ref: '#/components/responses/401'
+                    404:
+                      $ref: '#/components/responses/404'
+                    422:
+                      $ref: '#/components/responses/422'
+                    500:
+                      $ref: '#/components/responses/500'
+                """
+        try:
+            # print(json.load(sql_json))
+            print(json.loads(sql_json))
+            return json_success(
+                json.dumps(SQLBuilder.build_sql(self, json.loads(sql_json))))
         except SQLAlchemyError as ex:
             self.incr_stats("error", self.table_metadata.__name__)
         except Exception as ex:
