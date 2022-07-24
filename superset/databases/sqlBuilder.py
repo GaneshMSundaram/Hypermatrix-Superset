@@ -18,7 +18,7 @@ import logging
 import pandas as pd
 import sqlalchemy as sqlalch
 import networkx as nx
-from superset.databases.JoinPathAlgo_new import build_graph, join_path_algo
+from superset.databases.JoinPathAlgo import build_graph, join_path_algo
 # For sql query builder
 from UniversalSqlBuilder import UniversalSqlBuilder
 from flask import current_app
