@@ -30,15 +30,19 @@ class SQLBuilder:
     main_select = ""
     @staticmethod
     def build_sql(self, data):
+
         table_lis = list()
         table_lis = get_tables(data['dimensionData'], table_lis)
         table_join_lis = list()
         table_lis = get_tables(data['measureData'], table_lis)
+
         where_clause = data['conditionData']
         global schema
         global main_select
         schema = data['schemaName']
 
+        z = 0
+        select_column = []
         db_uri = (
             current_app.config["SQLALCHEMY_KNOWLEDGE_DATABASE_URI"]
         )
@@ -59,9 +63,11 @@ class SQLBuilder:
             nodes_to_be_linked=table_lis)
         if len(table_lis) > 0:
             main_select = "Select "
+
         z = 0
         sql2 = ""
         for x in join_paths_across:
+            additional_select = ""
             left_table = get_table(0, x)  # left table
             left_table_col = re.sub(r'.*[(]|,[)]', '', x[0])
             right_table = get_table(1, x)
@@ -72,7 +78,7 @@ class SQLBuilder:
                     left_table_col, left_table)
                 agg_clause = build_aggregationClause(
                     [v1 for v1 in data['measureData'] if v1['table'] == left_table])
-                # additiona_select = build_additional_select_columns(left_table, join_paths_across, )
+                # additional_select = build_additional_select_columns(left_table, join_paths_across, )
                 if len(agg_clause) > 0:
                     agg_clause = "," + agg_clause
                 sql2 = "(" + UniversalSqlBuilder.table(
@@ -85,12 +91,14 @@ class SQLBuilder:
                     [v1 for v1 in data['measureData'] if v1['table'] == right_table])
                 if len(agg_clause) > 0:
                     agg_clause = "," + agg_clause
+                join_clause = build_join_clause(x, left_table, right_table)
                 sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                     schema + "." + right_table).select(
                     select_clause + agg_clause + " FINAL ").get() + " ) as " + right_table + build_join_clause(
                     x,
                     left_table,
-                    right_table)
+                    right_table) + additional_select
+
                 table_join_lis.append(left_table)
                 table_join_lis.append(right_table)
             else:
@@ -110,7 +118,7 @@ class SQLBuilder:
                         select_clause + agg_clause + " FINAL ").get() + " ) as " + left_table + build_join_clause(
                         x,
                         left_table,
-                        right_table)
+                        right_table) + additional_select
 
                 right_tab_count = table_join_lis.count(right_table)
                 if right_tab_count == 0:
@@ -128,9 +136,11 @@ class SQLBuilder:
                         select_clause + agg_clause + " FINAL ").get() + " ) as " + right_table + build_join_clause(
                         x,
                         left_table,
-                        right_table)
+                        right_table) + additional_select
             z = z + 1
         main_select = main_select[:-1] + " from (" + sql2 + ") where " + where_clause
+
+        print(main_select)
         return main_select
 
 
@@ -139,14 +149,17 @@ def get_table(index, table_list):
 
 
 def build_join_clause(join_data, left_table, right_table):
+    additional_select = ""
     inner_join_statement = " on "
     left_table_cols = re.sub(r'.*[(]|[)]', '', join_data[0]).split(",")
     right_table_cols = re.sub(r'.*[(]|[)]', '', join_data[1]).split(",")
     index = 0
     for c in left_table_cols:
-        inner_join_statement = inner_join_statement + left_table + "." + c + " = " + right_table + "." + \
-                               right_table_cols[index] + " and "
-        index = index + 1
+        if c != "":
+            inner_join_statement = inner_join_statement + left_table + "." + c + " = " + right_table + "." + \
+                                   right_table_cols[index] + " and "
+            additional_select = additional_select + c + " '" + c + "',"
+            index = index + 1
     return inner_join_statement[:-4]
 
 
