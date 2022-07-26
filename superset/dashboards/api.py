@@ -477,6 +477,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         except ValidationError as error:
             return self.response_400(message=error.messages)
         try:
+            print("&&&&&&&&&&&&& create dashboard")
             new_model = CreateDashboardCommand(g.user, item).run()
             return self.response(201, id=new_model.id, result=item)
         except DashboardInvalidError as ex:

@@ -151,6 +151,15 @@ class DashboardDAO(BaseDAO):
             db.session.commit()
         return model
 
+    # @staticmethod
+    # def add_grid_to_dashboard_owners(model: Dashboard, commit: bool = True) -> Dashboard:
+    #     owners = list(model.owners)
+    #     for slc in model.slices:
+    #         slc.owners = list(set(owners) | set(slc.owners))
+    #     if commit:
+    #         db.session.commit()
+    #     return model
+
     @staticmethod
     def bulk_delete(models: Optional[List[Dashboard]], commit: bool = True) -> None:
         item_ids = [model.id for model in models] if models else []

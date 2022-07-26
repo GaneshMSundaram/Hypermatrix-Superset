@@ -40,7 +40,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.engine.base import Connection
-from sqlalchemy.orm import relationship, sessionmaker, subqueryload
+from sqlalchemy.orm import relationship, sessionmaker, subqueryload, backref
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.sql import join, select
@@ -131,6 +131,16 @@ DashboardRoles = Table(
     Column("role_id", Integer, ForeignKey("ab_role.id"), nullable=False),
 )
 
+class DashBoardGrid(Model):
+    __tablename__ = "dashboards_grid"
+    id = Column(Integer, primary_key=True)
+    grid_id = Column(Integer, nullable=False)
+    dashboard_id = Column(Integer, ForeignKey("dashboards.id"))
+    dashboard = relationship(
+        "Dashboard",
+        backref=backref("dashboards_grid", cascade="all, delete-orphan"),
+        foreign_keys=[dashboard_id],
+    )
 
 # pylint: disable=too-many-public-methods
 class Dashboard(Model, AuditMixinNullable, ImportExportMixin):

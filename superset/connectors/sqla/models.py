@@ -196,6 +196,31 @@ class AnnotationDatasource(BaseDatasource):
     def values_for_column(self, column_name: str, limit: int = 10000) -> List[Any]:
         raise NotImplementedError()
 
+class GridTable(Model):
+    """ORM object for grid to table mapping, each grid can have multiple tables"""
+    __tablename__ = "grid_tables"
+    __table_args__ = (UniqueConstraint("grid_id", "table_id"),)
+    id = Column(Integer, primary_key=True)
+    table_id = Column(Integer, ForeignKey("tables.id"))
+    grid_id = Column(Integer, nullable=False)
+    table = relationship(
+        "SqlaTable",
+        backref=backref("grid_tables", cascade="all, delete-orphan"),
+        foreign_keys=[table_id],
+    )
+
+# class GridChart(Model):
+#     """ORM object for grid to table mapping, each grid can have multiple tables"""
+#     __tablename__ = "grid_charts"
+#     __table_args__ = (UniqueConstraint("grid_id", "chart_id"),)
+#     id = Column(Integer, primary_key=True)
+#     chart_id = Column(Integer, ForeignKey("tables.id"))
+#     grid_id = Column(Integer, nullable=False)
+#     table = relationship(
+#         "SqlaTable",
+#         backref=backref("grid_tables", cascade="all, delete-orphan"),
+#         foreign_keys=[table_id],
+#     )
 
 class TableColumn(Model, BaseColumn, CertificationMixin):
 

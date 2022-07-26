@@ -36,7 +36,7 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.engine.base import Connection
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.mapper import Mapper
 
 from superset import ConnectorRegistry, db, is_feature_enabled, security_manager
@@ -63,7 +63,30 @@ slice_user = Table(
     Column("user_id", Integer, ForeignKey("ab_user.id")),
     Column("slice_id", Integer, ForeignKey("slices.id")),
 )
+# slice_grid = Table(
+#     "slice_grid",
+#     metadata,
+#     Column("id", Integer, primary_key=True),
+#     Column("grid_id", Integer, nullable=False),
+#     Column("slice_id", Integer, ForeignKey("slices.id")),
+#     slice = relationship(
+#         "slice",
+#         backref=backref("slice_grid", cascade="all, delete-orphan"),
+#         foreign_keys=['slice_id'],
+#     )
+# )
 logger = logging.getLogger(__name__)
+
+class SliceGrid(Model):
+    __tablename__ = "slice_grid"
+    id = Column(Integer, primary_key=True)
+    grid_id = Column(Integer, nullable=False)
+    slice_id = Column(Integer, ForeignKey("slices.id"))
+    slice = relationship(
+        "Slice",
+        backref=backref("slice_grid", cascade="all, delete-orphan"),
+        foreign_keys=[slice_id],
+    )
 
 
 class Slice(  # pylint: disable=too-many-public-methods

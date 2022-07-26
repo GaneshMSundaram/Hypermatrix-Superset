@@ -64,6 +64,7 @@ from superset.connectors.base.models import BaseDatasource
 from superset.connectors.connector_registry import ConnectorRegistry
 from superset.connectors.sqla.models import (
     AnnotationDatasource,
+    GridTable,
     SqlaTable,
     SqlMetric,
     TableColumn,
@@ -93,7 +94,7 @@ from superset.jinja_context import get_template_processor
 from superset.models.core import Database, FavStar, Log
 from superset.models.dashboard import Dashboard
 from superset.models.datasource_access_request import DatasourceAccessRequest
-from superset.models.slice import Slice
+from superset.models.slice import Slice, SliceGrid
 from superset.models.sql_lab import Query, TabState
 from superset.models.user_attributes import UserAttribute
 from superset.queries.dao import QueryDAO
@@ -960,6 +961,7 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
             if "slice_id" in form_data:
                 form_data.pop("slice_id")  # don't save old slice_id
             slc = Slice(owners=[g.user] if g.user else [])
+            
 
         form_data["adhoc_filters"] = self.remove_extra_filters(
             form_data.get("adhoc_filters") or []
@@ -977,6 +979,10 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
         slc.query_context = query_context
 
         if action == "saveas" and slice_add_perm:
+            SliceGrid.__table__.create(bind=db.engine, checkfirst=True)
+            sliceGridModelObj = SliceGrid()
+            sliceGridModelObj.grid_id = 2 # fetch it from request object
+            sliceGridModelObj.slice = slc
             ChartDAO.save(slc)
             msg = _("Chart [{}] has been saved").format(slc.slice_name)
             flash(msg, "success")
@@ -2134,7 +2140,17 @@ class Superset(BaseSupersetView):  # pylint: disable=too-many-public-methods
 
         table.columns = cols
         table.metrics = [SqlMetric(metric_name="count", expression="count(*)")]
+        GridTable.__table__.create(bind=db.engine, checkfirst=True)
+        gridTable_class = GridTable
+        gridTable = gridTable_class()
+        gridTable.grid_id = 2
+        # gridTable.table_id = table.id
+        gridTable.table = table
+        # db.session.add(gridTable)
         db.session.commit()
+        print(table)
+        print(gridTable.table)
+        print(gridTable.table_id)
         return json_success(json.dumps({"table_id": table.id}))
 
     @has_access

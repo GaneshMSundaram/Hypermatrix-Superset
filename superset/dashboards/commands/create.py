@@ -30,6 +30,8 @@ from superset.dashboards.commands.exceptions import (
     DashboardSlugExistsValidationError,
 )
 from superset.dashboards.dao import DashboardDAO
+from superset.models.dashboard import DashBoardGrid
+from superset import db
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,12 @@ class CreateDashboardCommand(CreateMixin, BaseCommand):
         self.validate()
         try:
             dashboard = DashboardDAO.create(self._properties, commit=False)
+            print("&&&&&&&&&&&&& create dashboard __ 2")
+            dashboard_grid = DashBoardGrid()
+            DashBoardGrid.__table__.create(bind=db.engine, checkfirst=True)
+            dashboard_grid.grid_id =  2  #self._properties['gridId']
+            dashboard_grid.dashboard = dashboard
+
             dashboard = DashboardDAO.update_charts_owners(dashboard, commit=True)
         except DAOCreateFailedError as ex:
             logger.exception(ex.exception)

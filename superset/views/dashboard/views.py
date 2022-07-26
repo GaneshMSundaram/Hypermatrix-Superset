@@ -28,7 +28,7 @@ from flask_login import AnonymousUserMixin, LoginManager
 
 from superset import db, event_logger, is_feature_enabled, security_manager
 from superset.constants import MODEL_VIEW_RW_METHOD_PERMISSION_MAP, RouteMethod
-from superset.models.dashboard import Dashboard as DashboardModel
+from superset.models.dashboard import DashBoardGrid, Dashboard as DashboardModel
 from superset.typing import FlaskResponse
 from superset.utils import core as utils
 from superset.views.base import (
@@ -131,6 +131,11 @@ class Dashboard(BaseSupersetView):
             owners=[g.user],
             json_metadata=json.dumps(metadata, sort_keys=True),
         )
+        print("&&&&&&&&&&&&& create dashboard __ 2")
+        dashboard_grid = DashBoardGrid()
+        DashBoardGrid.__table__.create(bind=db.engine, checkfirst=True)
+        dashboard_grid.grid_id =  2  #self._properties['gridId']
+        dashboard_grid.dashboard = new_dashboard
         db.session.add(new_dashboard)
         db.session.commit()
         return redirect(f"/superset/dashboard/{new_dashboard.id}/?edit=true")
