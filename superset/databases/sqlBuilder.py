@@ -83,7 +83,7 @@ class SQLBuilder:
                     left_table_col, left_table)
                 agg_clause = build_aggregationClause(
                     [v1 for v1 in data['measureData'] if v1['table'] == left_table])
-
+                group_by_caluse = ""
                 where_clause_table_exists = my_dict.get(left_table)
                 additional_where_select = ""
                 if where_clause_table_exists is not None:
@@ -92,9 +92,12 @@ class SQLBuilder:
                 # additional_select = build_additional_select_columns(left_table, join_paths_across, )
                 if len(agg_clause) > 0:
                     agg_clause = "," + agg_clause
+                    group_by_caluse = "group by " + select_clause
                 if len(additional_where_select) > 0:
                     additional_where_select = "," + additional_where_select
 
+                if len(agg_clause) > 0 and len(additional_where_select):
+                    group_by_caluse = group_by_caluse + additional_where_select
                 right_where_clause_table_exists = my_dict.get(right_table)
 
                 right_where_clause_table_exists = ""
@@ -103,20 +106,28 @@ class SQLBuilder:
                                                       :-1]
                 sql2 = "(" + UniversalSqlBuilder.table(
                     schema + "." + left_table).select(
-                    select_clause + agg_clause + additional_where_select).get() + " ) as " + left_table
+                    select_clause + agg_clause + additional_where_select + group_by_caluse).get() + " ) as " + left_table
                 select_clause = build_selectClause(
                     [v1 for v1 in data['dimensionData'] if v1['table'] == right_table],
                     right_table_col, right_table)
                 agg_clause = build_aggregationClause(
                     [v1 for v1 in data['measureData'] if v1['table'] == right_table])
-                if len(agg_clause) > 0:
-                    agg_clause = "," + agg_clause
+
+                group_by_caluse = ""
+
                 if len(right_where_clause_table_exists) > 0:
                     right_where_clause_table_exists = "," + right_where_clause_table_exists
+
+                if len(agg_clause) > 0:
+                    agg_clause = "," + agg_clause
+                    group_by_caluse = "group by " + select_clause
+                if len(agg_clause) > 0 and len(additional_where_select):
+                    group_by_caluse = group_by_caluse + right_where_clause_table_exists
+
                 join_clause = build_join_clause(x, left_table, right_table)
                 sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                     schema + "." + right_table).select(
-                    select_clause + agg_clause + right_where_clause_table_exists).get() + " ) as " + right_table + build_join_clause(
+                    select_clause + agg_clause + group_by_caluse + right_where_clause_table_exists).get() + " ) as " + right_table + build_join_clause(
                     x,
                     left_table,
                     right_table) + additional_select
@@ -126,6 +137,7 @@ class SQLBuilder:
             else:
                 left_tab_count = table_join_lis.count(left_table)
                 where_clause_table_exists = my_dict.get(left_table)
+                group_by_caluse = ""
                 additional_where_select = ""
                 if where_clause_table_exists is not None:
                     additional_where_select = where_clause_table_exists[:-1]
@@ -143,9 +155,13 @@ class SQLBuilder:
                         [v1 for v1 in data['measureData'] if v1['table'] == left_table])
                     if len(agg_clause) > 0:
                         agg_clause = "," + agg_clause
+                        group_by_caluse = "group by " + select_clause
+
+                    if len(agg_clause) > 0 and len(additional_where_select):
+                        group_by_caluse = group_by_caluse + additional_where_select
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + left_table).select(
-                        select_clause + agg_clause + additional_where_select).get() + " ) as " + left_table + build_join_clause(
+                        select_clause + agg_clause + additional_where_select + group_by_caluse).get() + " ) as " + left_table + build_join_clause(
                         x,
                         left_table,
                         right_table) + additional_select
@@ -158,6 +174,8 @@ class SQLBuilder:
                 if len(right_where_clause_table_exists) > 0:
                     right_where_clause_table_exists = "," + right_where_clause_table_exists
 
+                group_by_caluse = ""
+
                 if right_tab_count == 0:
 
                     select_clause = build_selectClause(
@@ -169,6 +187,10 @@ class SQLBuilder:
                          v1['table'] == right_table])
                     if len(agg_clause) > 0:
                         agg_clause = "," + agg_clause
+                        group_by_caluse = "group by " + select_clause
+
+                    if len(agg_clause) > 0 and len(right_where_clause_table_exists):
+                        group_by_caluse = group_by_caluse + right_where_clause_table_exists
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + right_table).select(
                         select_clause + agg_clause + right_where_clause_table_exists).get() + " ) as " + right_table + build_join_clause(
@@ -177,7 +199,8 @@ class SQLBuilder:
                         right_table) + additional_select
             z = z + 1
         main_select = main_select[:-1] + " from (" + sql2 + ") where " + where_clause
-        main_select = main_select.replace('/', '"')
+
+        main_select.replace('/', '/"')
         print(main_select)
         return main_select
 
