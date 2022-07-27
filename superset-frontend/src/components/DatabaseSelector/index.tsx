@@ -293,20 +293,20 @@ export default function DatabaseSelector({
           setRefresh(refresh + 1);
           changeSchema(undefined);
         }}
-        tooltipContent={t('Force refresh schema & table list')}
+        tooltipContent={t('Force refresh grid & table list')}
       />
     );
 
     return renderSelectRow(
       <Select
-        ariaLabel={t('Select schema or type schema name')}
+        ariaLabel={t('Select Grid or type Grid name')}
         disabled={readOnly}
-        header={<FormLabel>{t('Schema')}</FormLabel>}
+        header={<FormLabel>{t('Select Grid')}</FormLabel>}
         labelInValue
         lazyLoading={false}
         loading={loadingSchemas}
         name="select-schema"
-        placeholder={t('Select schema or type schema name')}
+        placeholder={t('Select Grid or type Grid name')}
         onChange={(tableData, item) => changeSchema(tableData, item as SchemaValue)}
         options={schemaOptions}
         showSearch

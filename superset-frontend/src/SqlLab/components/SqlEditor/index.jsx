@@ -24,7 +24,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import Split from 'react-split';
-import { t, styled, withTheme } from '@superset-ui/core';
+import { t, styled, withTheme,SupersetClient } from '@superset-ui/core';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import StyledModal from 'src/components/Modal';
@@ -654,11 +654,13 @@ class SqlEditor extends React.PureComponent {
       let findIndex = item.id.split('_')[1];
       let tableColValSplit = document.getElementById(`selMeasure_${findIndex}`).innerText.split('.');
       let tableVal = tableColValSplit[0];
-      let columnVal = tableColValSplit[1]
+      let columnVal = tableColValSplit[1];
+      let aliasName = $(`#selMeasure_${findIndex}`).data('name'); 
       let operator2Val = document.getElementById(`selMeasureOperator_${findIndex}`).value;
       const measureData = {
         table: tableVal,
         columns: columnVal,
+        aliasName: aliasName,
         operator2: operator2Val,
       }
       measureDataArray.push(measureData);
@@ -673,10 +675,13 @@ class SqlEditor extends React.PureComponent {
       let findIndex = item.id.split('_')[1];
       let tableColValSplit = document.getElementById(`selectedItem_${findIndex}`).innerText.split('.');
       let tableVal = tableColValSplit[0];
-      let columnVal = tableColValSplit[1]
+      let columnVal = tableColValSplit[1];
+      let aliasName = $(`#selectedItem_${findIndex}`).data('name');
+
       const dimensionData = {
         table: tableVal,
         columns: columnVal,
+        aliasName: aliasName
       }
       dimensionDataArray.push(dimensionData);
     }
@@ -697,14 +702,26 @@ class SqlEditor extends React.PureComponent {
     if (generateBtnFlag) {
       this.loadDimensionData();
       this.loadMeasureData();
+      const schemaName = sessionStorage.getItem('schemaName');
       const payload = {
+        schemaName:schemaName,
         dimensionData: dimensionDataArray,
         measureData: measureDataArray,
-        conditionData:$('#sqlData').text()
-        // conditionData: this.state.dbQuery
+        conditionData:$('#sqlData').text(),
+        conditionDataJson: this.state.dbQuery
       }
-      console.log('Final Payload: ', payload)
-    }
+      console.log('Final Payload: ', payload);
+      const convertJson = JSON.stringify(payload);
+      const endpoint = `api/v1/database/sqlbuilder_metadata/${convertJson}`;
+      // TODO: Would be nice to add pagination in a follow-up. Needs endpoint changes.
+      SupersetClient.get({ endpoint })
+        .then(({ json }) => {
+                console.log('Json Data :', json)    
+        })
+        .catch(() => {          
+          
+        });
+    }  
   }
   queryPane() {
     const hotkeys = this.getHotkeyConfig();
@@ -738,7 +755,7 @@ class SqlEditor extends React.PureComponent {
                     return (
                       <li key={index}>
                         <div id={`dimItem_${index}`} className="tableSection dimensionSel">
-                          <span id={`selectedItem_${index}`} onClick={() => this.addActiveDim(event)} className='contentSection'>{item.table}.{item.columns}</span>
+                          <span data-name={item.aliasName} id={`selectedItem_${index}`} onClick={() => this.addActiveDim(event)} className='contentSection'>{item.table}.{item.columns}</span>
                         </div>
                       </li>
                     );
@@ -756,7 +773,7 @@ class SqlEditor extends React.PureComponent {
                     return (
                       <li key={index}>
                         <div id={`measure_${index}`} onClick={() => this.addActiveMeasures(event)} className='selMeasures contentSection'>
-                          <span id={`selMeasure_${index}`} className='textSection'>{item.table}.{item.columns}</span>
+                          <span data-name={item.aliasName} id={`selMeasure_${index}`} className='textSection'>{item.table}.{item.columns}</span>
                           <div className='typeSection'>{item.type}</div>
                           {item.type === 'VARCHAR' || item.type === 'TEXT' ?
                           <select id={`selMeasureOperator_${index}`}>

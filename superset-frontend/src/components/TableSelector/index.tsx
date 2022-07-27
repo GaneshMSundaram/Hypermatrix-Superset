@@ -263,6 +263,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
         var newTable = {
           table: table?.text,
           columns: item.value,
+          aliasName:item.dataset.name,
           type: item.dataset.type
         }
         sessionStorage.setItem('arrowClicked', 'false');
@@ -283,6 +284,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       
     }
     sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
+    // sessionStorage.setItem('pageDirty', 'true');
     removeDisabled();
   }; 
   const arrowCheck = () => {
@@ -308,7 +310,8 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       var newTable = {
         table: table?.text,
         columns: evt.target.value,
-        type: evt.target.dataset.type
+        type: evt.target.dataset.type,
+        aliasName:evt.target.dataset.name
       }
       sessionStorage.setItem('arrowClicked', 'false');
       tableItemArray.push(newTable);
@@ -320,6 +323,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     }
     removeDisabled();
     sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
+    // sessionStorage.setItem('pageDirty', 'true');
   }
   const internalDbChange = (db: DatabaseObject) => {
     setCurrentDatabase(db);
@@ -327,13 +331,35 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
       onDbChange(db);
     }
   };
-
-  const internalSchemaChange = (schema?: string) => {
-    setCurrentSchema(schema);
+  const clearCheckboxes = () => {
+    var allCheckboxes = document.getElementsByClassName("leftCheckBox");
+    for (var i = 0; i < allCheckboxes.length; i++) {
+      allCheckboxes[i].checked = false;
+    }
+    sessionStorage.setItem("arrowClicked", 'true');
+  }
+  const schemachangeInner = (schema?: string) => {
+    sessionStorage.setItem('schemaName', schema.key);
     if (onSchemaChange) {
-      onSchemaChange(schema);      
+      onSchemaChange(schema);
       $(".ant-select-dropdown:not([class*='ant-select-dropdown-hidden'])").addClass("ant-select-dropdown-hidden");
     }
+  }
+  const internalSchemaChange = (schema?: string) => {
+    const checkPageDirty = sessionStorage.getItem('pageDirty');
+    if(checkPageDirty === 'true'){
+      if (confirm("By changing Grid, selections made in current Grid will be lost. Continue ?")) {
+        setCurrentSchema(schema);
+        schemachangeInner(schema);
+        sessionStorage.clear();       
+        clearCheckboxes();       
+      } else {
+        return;
+      }        
+    }else{
+      setCurrentSchema(schema);
+      schemachangeInner(schema);       
+    }    
   };
 
   function renderDatabaseSelector() {
@@ -403,6 +429,7 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
                         id={`column-checkbox-${colData.name}`}
                         name={item.value}
                         data-type={colData.type}
+                        data-name={colData.label}
                         value={`${colData.name}`}
                         onChange={() => tableSelection(event, index, tableOptions[index])}
                       />
