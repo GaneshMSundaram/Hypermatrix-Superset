@@ -15,6 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 import logging
+from collections import defaultdict
+
 import pandas as pd
 import sqlalchemy as sqlalch
 import networkx as nx
@@ -28,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 class SQLBuilder:
     main_select = ""
+    my_dict = defaultdict(list)
     @staticmethod
     def build_sql(self, data):
 
@@ -39,7 +42,9 @@ class SQLBuilder:
         where_clause = data['conditionData']
         global schema
         global main_select
+        global my_dict
         schema = data['schemaName']
+        my_dict = defaultdict(list)
         table_lis = get_tables_from_where_clause(where_clause.split("="), table_lis)
         z = 0
         select_column = []
@@ -78,12 +83,27 @@ class SQLBuilder:
                     left_table_col, left_table)
                 agg_clause = build_aggregationClause(
                     [v1 for v1 in data['measureData'] if v1['table'] == left_table])
+
+                where_clause_table_exists = my_dict.get(left_table)
+                additional_where_select = ""
+                if where_clause_table_exists is not None:
+                    additional_where_select = where_clause_table_exists[:-1]
+
                 # additional_select = build_additional_select_columns(left_table, join_paths_across, )
                 if len(agg_clause) > 0:
                     agg_clause = "," + agg_clause
+                if len(additional_where_select) > 0:
+                    additional_where_select = "," + additional_where_select
+
+                right_where_clause_table_exists = my_dict.get(right_table)
+
+                right_where_clause_table_exists = ""
+                if right_where_clause_table_exists is not None:
+                    right_where_clause_table_exists = right_where_clause_table_exists[
+                                                      :-1]
                 sql2 = "(" + UniversalSqlBuilder.table(
                     schema + "." + left_table).select(
-                    select_clause + agg_clause ).get() + " ) as " + left_table
+                    select_clause + agg_clause + additional_where_select).get() + " ) as " + left_table
                 select_clause = build_selectClause(
                     [v1 for v1 in data['dimensionData'] if v1['table'] == right_table],
                     right_table_col, right_table)
@@ -91,10 +111,12 @@ class SQLBuilder:
                     [v1 for v1 in data['measureData'] if v1['table'] == right_table])
                 if len(agg_clause) > 0:
                     agg_clause = "," + agg_clause
+                if len(right_where_clause_table_exists) > 0:
+                    right_where_clause_table_exists = "," + right_where_clause_table_exists
                 join_clause = build_join_clause(x, left_table, right_table)
                 sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                     schema + "." + right_table).select(
-                    select_clause + agg_clause ).get() + " ) as " + right_table + build_join_clause(
+                    select_clause + agg_clause + right_where_clause_table_exists).get() + " ) as " + right_table + build_join_clause(
                     x,
                     left_table,
                     right_table) + additional_select
@@ -103,6 +125,14 @@ class SQLBuilder:
                 table_join_lis.append(right_table)
             else:
                 left_tab_count = table_join_lis.count(left_table)
+                where_clause_table_exists = my_dict.get(left_table)
+                additional_where_select = ""
+                if where_clause_table_exists is not None:
+                    additional_where_select = where_clause_table_exists[:-1]
+
+                if len(additional_where_select) > 0:
+                    additional_where_select = "," + additional_where_select
+
                 if left_tab_count == 0:
                     table_join_lis.append(left_table)
                     select_clause = build_selectClause(
@@ -115,13 +145,21 @@ class SQLBuilder:
                         agg_clause = "," + agg_clause
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + left_table).select(
-                        select_clause + agg_clause ).get() + " ) as " + left_table + build_join_clause(
+                        select_clause + agg_clause + additional_where_select).get() + " ) as " + left_table + build_join_clause(
                         x,
                         left_table,
                         right_table) + additional_select
-
+                right_where_clause_table_exists = my_dict.get(right_table)
+                right_where_clause_table_exists = ""
+                if right_where_clause_table_exists is not None:
+                    right_where_clause_table_exists = right_where_clause_table_exists[
+                                                      :-1]
                 right_tab_count = table_join_lis.count(right_table)
+                if len(right_where_clause_table_exists) > 0:
+                    right_where_clause_table_exists = "," + right_where_clause_table_exists
+
                 if right_tab_count == 0:
+
                     select_clause = build_selectClause(
                         [v1 for v1 in data['dimensionData'] if
                          v1['table'] == right_table],
@@ -133,7 +171,7 @@ class SQLBuilder:
                         agg_clause = "," + agg_clause
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + right_table).select(
-                        select_clause + agg_clause ).get() + " ) as " + right_table + build_join_clause(
+                        select_clause + agg_clause + right_where_clause_table_exists).get() + " ) as " + right_table + build_join_clause(
                         x,
                         left_table,
                         right_table) + additional_select
@@ -149,10 +187,16 @@ def get_table(index, table_list):
 
 
 def get_tables_from_where_clause(where_clause, table_lst: list()):
+    global my_dict
     for wc in where_clause:
         if '(' in wc:
             split_array = re.sub(r'.*[(]|[)]', '', wc).split(".")
             table_count = table_lst.count(split_array[0])
+            already_exists = my_dict.get(split_array[0])
+            if already_exists is None and table_count == 0:
+                my_dict[split_array[0]] = split_array[1] + ","
+            elif table_count == 0:
+                my_dict[split_array[0]].append(split_array[1])
             if table_count == 0:
                 table_lst.append(split_array[0])
     return table_lst
