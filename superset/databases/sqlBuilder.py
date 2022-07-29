@@ -109,7 +109,7 @@ class SQLBuilder:
                                                       :-1]
                 sql2 = "(" + UniversalSqlBuilder.table(
                     schema + "." + left_table).select(
-                    select_clause + agg_clause + additional_where_select ).get() + " " + group_clause + " ) as " + left_table
+                    select_clause + agg_clause + additional_where_select ).get() + " FINAL  " + group_clause + " ) as " + left_table
 
                 group_by_caluse = ""
                 group_clause = ""
@@ -132,7 +132,7 @@ class SQLBuilder:
                 join_clause = build_join_clause(x, left_table, right_table)
                 sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                     schema + "." + right_table).select(
-                    select_clause + agg_clause + right_where_clause_table_exists ).get() + " " + group_clause + " ) as " + right_table + build_join_clause(
+                    select_clause + agg_clause + right_where_clause_table_exists ).get() + " FINAL  " + group_clause + " ) as " + right_table + build_join_clause(
                     x,
                     left_table,
                     right_table) + additional_select
@@ -166,7 +166,7 @@ class SQLBuilder:
                         group_clause = group_clause + additional_where_select
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + left_table).select(
-                        select_clause + agg_clause + additional_where_select ).get() + " " + group_clause + " ) as " + left_table + build_join_clause(
+                        select_clause + agg_clause + additional_where_select ).get() + " FINAL  "+ group_clause + " ) as " + left_table + build_join_clause(
                         x,
                         left_table,
                         right_table) + additional_select
@@ -199,12 +199,16 @@ class SQLBuilder:
                         group_clause = group_clause + right_where_clause_table_exists
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + right_table).select(
-                        select_clause + agg_clause + right_where_clause_table_exists).get() + " " + group_clause + " ) as " + right_table  + build_join_clause(
+                        select_clause + agg_clause + right_where_clause_table_exists).get() + " FINAL  " + group_clause + " ) as " + right_table  + build_join_clause(
                         x,
                         left_table,
                         right_table) + additional_select
             z = z + 1
-        parent_select = parent_select[:-1] + " from " + sql2 + " where " + where_clause
+
+        final_where_clause = ""
+        if len(where_clause) > 5:
+            final_where_clause = "where " + where_clause
+        parent_select = parent_select[:-1] + " from " + sql2 + final_where_clause
         parent_select.replace('/', '/"')
         return parent_select
 
@@ -273,11 +277,10 @@ def build_selectClause(select_list, join_column, table_name, join_path):
     return joined_select_string[:-1]
 
 
-
 def build_aggregationClause(select_list):
     joined_select_string = ""
     global parent_select
-    global  group_by_caluse
+    global group_by_caluse
     for w in select_list:
         joined_select_string = w['operator2'] + " (" + w['columns'] + ")  as "'"' + w[
             'aliasName'] + '"'" ,"
