@@ -15,6 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 import logging
+from collections import defaultdict
+
 import pandas as pd
 import sqlalchemy as sqlalch
 import networkx as nx
@@ -27,18 +29,27 @@ logger = logging.getLogger(__name__)
 
 
 class SQLBuilder:
-    main_select = ""
+    parent_select = ""
+    table_column_dict = defaultdict(list)
+    group_by_caluse =""
     @staticmethod
     def build_sql(self, data):
+
         table_lis = list()
         table_lis = get_tables(data['dimensionData'], table_lis)
         table_join_lis = list()
         table_lis = get_tables(data['measureData'], table_lis)
+
         where_clause = data['conditionData']
         global schema
-        global main_select
+        global parent_select
+        global table_column_dict
+        global group_by_caluse
         schema = data['schemaName']
-
+        table_column_dict = defaultdict(list)
+        table_lis = get_tables_from_where_clause(where_clause.split("="), table_lis)
+        z = 0
+        select_column = []
         db_uri = (
             current_app.config["SQLALCHEMY_KNOWLEDGE_DATABASE_URI"]
         )
@@ -58,10 +69,12 @@ class SQLBuilder:
         path, join_paths_across = obj_join_path_algo.contruct_path(
             nodes_to_be_linked=table_lis)
         if len(table_lis) > 0:
-            main_select = "Select "
+            parent_select = "Select "
+
         z = 0
         sql2 = ""
         for x in join_paths_across:
+            additional_select = ""
             left_table = get_table(0, x)  # left table
             left_table_col = re.sub(r'.*[(]|,[)]', '', x[0])
             right_table = get_table(1, x)
@@ -69,109 +82,209 @@ class SQLBuilder:
             if z == 0:
                 select_clause = build_selectClause(
                     [v1 for v1 in data['dimensionData'] if v1['table'] == left_table],
-                    left_table_col, left_table)
+                    left_table_col, left_table, join_paths_across)
                 agg_clause = build_aggregationClause(
                     [v1 for v1 in data['measureData'] if v1['table'] == left_table])
-                # additiona_select = build_additional_select_columns(left_table, join_paths_across, )
+                group_by_caluse = ""
+                group_clause = ""
+                where_clause_table_exists = table_column_dict.get(left_table)
+                additional_where_select = ""
+                if where_clause_table_exists is not None:
+                    additional_where_select = where_clause_table_exists[:-1]
+
+                # additional_select = build_additional_select_columns(left_table, join_paths_across, )
                 if len(agg_clause) > 0:
                     agg_clause = "," + agg_clause
+                    group_clause = "group by " + group_by_caluse[:-1]
+                if len(additional_where_select) > 0:
+                    additional_where_select = "," + additional_where_select
+
+                if len(agg_clause) > 0 and len(additional_where_select):
+                    group_clause = group_clause + additional_where_select
+                right_where_clause_table_exists = table_column_dict.get(right_table)
+
+                right_where_clause_table_exists = ""
+                if right_where_clause_table_exists is not None:
+                    right_where_clause_table_exists = right_where_clause_table_exists[
+                                                      :-1]
                 sql2 = "(" + UniversalSqlBuilder.table(
                     schema + "." + left_table).select(
-                    select_clause + agg_clause + " FINAL ").get() + " ) as " + left_table
+                    select_clause + agg_clause + additional_where_select ).get() + " FINAL  " + group_clause + " ) as " + left_table
+
+                group_by_caluse = ""
+                group_clause = ""
+
                 select_clause = build_selectClause(
                     [v1 for v1 in data['dimensionData'] if v1['table'] == right_table],
-                    right_table_col, right_table)
+                    right_table_col, right_table, join_paths_across)
                 agg_clause = build_aggregationClause(
                     [v1 for v1 in data['measureData'] if v1['table'] == right_table])
+
+                if len(right_where_clause_table_exists) > 0:
+                    right_where_clause_table_exists = "," + right_where_clause_table_exists
+
                 if len(agg_clause) > 0:
                     agg_clause = "," + agg_clause
+                    group_clause = "group by " + group_by_caluse[:-1]
+                if len(agg_clause) > 0 and len(additional_where_select):
+                    group_clause = group_clause + right_where_clause_table_exists
+
+                join_clause = build_join_clause(x, left_table, right_table)
                 sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                     schema + "." + right_table).select(
-                    select_clause + agg_clause + " FINAL ").get() + " ) as " + right_table + build_join_clause(
+                    select_clause + agg_clause + right_where_clause_table_exists ).get() + " FINAL  " + group_clause + " ) as " + right_table + build_join_clause(
                     x,
                     left_table,
-                    right_table)
+                    right_table) + additional_select
+
                 table_join_lis.append(left_table)
                 table_join_lis.append(right_table)
             else:
                 left_tab_count = table_join_lis.count(left_table)
+                where_clause_table_exists = table_column_dict.get(left_table)
+                group_by_caluse = ""
+                additional_where_select = ""
+                if where_clause_table_exists is not None:
+                    additional_where_select = where_clause_table_exists[:-1]
+
+                if len(additional_where_select) > 0:
+                    additional_where_select = "," + additional_where_select
+                group_clause = ""
                 if left_tab_count == 0:
                     table_join_lis.append(left_table)
                     select_clause = build_selectClause(
                         [v1 for v1 in data['dimensionData'] if
                          v1['table'] == left_table],
-                        left_table_col, left_table)
+                        left_table_col, left_table, join_paths_across)
                     agg_clause = build_aggregationClause(
                         [v1 for v1 in data['measureData'] if v1['table'] == left_table])
                     if len(agg_clause) > 0:
                         agg_clause = "," + agg_clause
+                        group_clause = "group by " + group_by_caluse[:-1]
+
+                    if len(agg_clause) > 0 and len(additional_where_select):
+                        group_clause = group_clause + additional_where_select
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + left_table).select(
-                        select_clause + agg_clause + " FINAL ").get() + " ) as " + left_table + build_join_clause(
+                        select_clause + agg_clause + additional_where_select ).get() + " FINAL  "+ group_clause + " ) as " + left_table + build_join_clause(
                         x,
                         left_table,
-                        right_table)
+                        right_table) + additional_select
 
+                right_where_clause_table_exists = table_column_dict.get(right_table)
+
+                if right_where_clause_table_exists is not None:
+                    right_where_clause_table_exists = right_where_clause_table_exists[
+                                                      :-1]
                 right_tab_count = table_join_lis.count(right_table)
+                if right_where_clause_table_exists is not None and len(right_where_clause_table_exists) > 0:
+                    right_where_clause_table_exists = "," + right_where_clause_table_exists
+
+                group_by_caluse = ""
+                group_clause = ""
                 if right_tab_count == 0:
+
                     select_clause = build_selectClause(
                         [v1 for v1 in data['dimensionData'] if
                          v1['table'] == right_table],
-                        right_table_col, right_table)
+                        right_table_col, right_table, join_paths_across)
                     agg_clause = build_aggregationClause(
                         [v1 for v1 in data['measureData'] if
                          v1['table'] == right_table])
                     if len(agg_clause) > 0:
                         agg_clause = "," + agg_clause
+                        group_clause = "group by " + group_by_caluse[:-1]
+
+                    if len(agg_clause) > 0 and len(right_where_clause_table_exists):
+                        group_clause = group_clause + right_where_clause_table_exists
                     sql2 = sql2 + " inner join (" + UniversalSqlBuilder.table(
                         schema + "." + right_table).select(
-                        select_clause + agg_clause + " FINAL ").get() + " ) as " + right_table + build_join_clause(
+                        select_clause + agg_clause + right_where_clause_table_exists).get() + " FINAL  " + group_clause + " ) as " + right_table  + build_join_clause(
                         x,
                         left_table,
-                        right_table)
+                        right_table) + additional_select
             z = z + 1
-        main_select = main_select[:-1] + " from (" + sql2 + ") where " + where_clause
-        return main_select
+
+        final_where_clause = ""
+        if len(where_clause) > 5:
+            final_where_clause = "where " + where_clause
+        parent_select = parent_select[:-1] + " from " + sql2 + final_where_clause
+        parent_select.replace('/', '/"')
+        return parent_select
 
 
 def get_table(index, table_list):
     return re.sub(r'[(].*', '', table_list[index])
 
 
+def get_tables_from_where_clause(where_clause, table_lst: list()):
+    global table_column_dict
+    for wc in where_clause:
+        if '(' in wc:
+            split_array = re.sub(r'.*[(]|[)]', '', wc).split(".")
+            table_count = table_lst.count(split_array[0])
+            already_exists = table_column_dict.get(split_array[0])
+            if already_exists is None and table_count == 0:
+                table_column_dict[split_array[0]] = split_array[1] + ","
+            elif table_count == 0:
+                table_column_dict[split_array[0]].append(split_array[1])
+            if table_count == 0:
+                table_lst.append(split_array[0])
+    return table_lst
+
+
 def build_join_clause(join_data, left_table, right_table):
+    additional_select = ""
     inner_join_statement = " on "
     left_table_cols = re.sub(r'.*[(]|[)]', '', join_data[0]).split(",")
     right_table_cols = re.sub(r'.*[(]|[)]', '', join_data[1]).split(",")
     index = 0
     for c in left_table_cols:
-        inner_join_statement = inner_join_statement + left_table + "." + c + " = " + right_table + "." + \
-                               right_table_cols[index] + " and "
-        index = index + 1
+        if c != "":
+            inner_join_statement = inner_join_statement + left_table + "." + c + " = " + right_table + "." + \
+                                   right_table_cols[index] + " and "
+            additional_select = additional_select + c + "'" + c + '"'","
+            index = index + 1
     return inner_join_statement[:-4]
 
-
-def build_selectClause(select_list, join_column, table_name):
+def build_selectClause(select_list, join_column, table_name, join_path):
     joined_select_string = ""
-    global main_select
-    for w in select_list:
-        joined_select_string = w['columns'] + "  As '" + w['aliasName'] + "' , "
-        main_select = main_select + w['table'] + ".'" + w['aliasName'] + "',"
 
+    global parent_select
+    global group_by_caluse
+    group_by_caluse =""
+    for w in select_list:
+        joined_select_string = w['columns'] + "  As "'"' + w['aliasName'] + '"'" , "
+        parent_select = parent_select + w['table'] + "."'"' + w['aliasName'] + '"'"   As "'"' + w['aliasName'] + '"'","
+        group_by_caluse = '"' + w['aliasName'] + '"'" , "
     left_table_cols = join_column.split(",")
     for jc in left_table_cols:
         pjc = re.sub(r'.*[(]|[)]', '', jc)
-        if select_list.count(pjc) == 0:
-            joined_select_string = joined_select_string + pjc + " as '" + pjc + "',"
+        if select_list.count(pjc) == 0 and pjc != "":
+            joined_select_string = joined_select_string + pjc + " as "'"' + pjc + '"'","
+    for path in join_path:
+        left_table = get_table(0, path)  # left table
+        left_table_col = re.sub(r'.*[(]|,[)]', '', path[0])
+        right_table = get_table(1, path)
+        right_table_col = re.sub(r'.*[(]|,[)]', '', path[1])
+        column_value = ""
+        if table_name == left_table:
+            joined_select_string = joined_select_string + left_table_col + ","
+            group_by_caluse = group_by_caluse + left_table_col + ","
+        elif table_name == right_table:
+            joined_select_string = joined_select_string + right_table_col + ","
+            group_by_caluse = group_by_caluse + right_table_col + ","
     return joined_select_string[:-1]
 
 
 def build_aggregationClause(select_list):
     joined_select_string = ""
-    global main_select
+    global parent_select
+    global group_by_caluse
     for w in select_list:
-        joined_select_string = w['operator2'] + " (" + w['columns'] + ")  as '" + w[
-            'aliasName'] + "' ,"
-        main_select = main_select + w['table'] + ".'" + w['aliasName'] + "',"
+        joined_select_string = w['operator2'] + " (" + w['columns'] + ")  as "'"' + w[
+            'aliasName'] + '"'" ,"
+        parent_select = parent_select + w['table'] + "."'"' + w['aliasName'] + '"'"   As "'"' + w['aliasName'] + '"'","
     return joined_select_string[:-1]
 
 

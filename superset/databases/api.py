@@ -538,7 +538,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             )
             return self.response_422(message=str(ex))
 
-    @expose("/sqlbuilder_metadata/<sql_json>")
+    @expose("/sqlbuilder_metadata/<sql_json>", methods=["POST"])
     @protect()
     @safe
     # @rison(database_schemas_query_schema)
@@ -550,41 +550,45 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         log_to_statsd=False,
     )
     def sqlbuilder_metadata(
-        self, sql_json: str, **kwargs: Any
+        self, **kwargs: Any
     ) -> FlaskResponse:
         """SQL Builder
-                ---
-                get:
-                  description: Get database table metadata
-                  parameters:
-                  - in: path
-                    schema:
-                      type: string
-                    name: sql_json
-                    description: The SQL Json schema
-                  responses:
-                    200:
-                      description: Table metadata information
-                      content:
-                        application/json:
-                          schema:
-                            $ref: "#/components/schemas/TableMetadataResponseSchema"
-                    400:
-                      $ref: '#/components/responses/400'
-                    401:
-                      $ref: '#/components/responses/401'
-                    404:
-                      $ref: '#/components/responses/404'
-                    422:
-                      $ref: '#/components/responses/422'
-                    500:
-                      $ref: '#/components/responses/500'
-                """
+        Tests a database connection
+        ---
+        post:
+          description: >-
+            Get SQL query from json metadata
+          requestBody:
+            description: sql json schema
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: ""
+          responses:
+            200:
+              description: Database Test Connection
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+            400:
+              $ref: '#/components/responses/400'
+            422:
+              $ref: '#/components/responses/422'
+            500:
+              $ref: '#/components/responses/500'
+        """
         try:
             # print(json.load(sql_json))
-            print(json.loads(sql_json))
-            return json_success(
-                json.dumps(SQLBuilder.build_sql(self, json.loads(sql_json))))
+            sql_json_schema = request.json
+            return Response(
+                SQLBuilder.build_sql(self, sql_json_schema),
+                mimetype="application/text",
+            )
         except SQLAlchemyError as ex:
             self.incr_stats("error", self.table_metadata.__name__)
         except Exception as ex:
