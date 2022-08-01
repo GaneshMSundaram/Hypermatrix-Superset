@@ -75,6 +75,7 @@ if (!isDevMode) {
 const plugins = [
   new webpack.ProvidePlugin({
     process: 'process/browser',
+    Buffer: ['buffer', 'Buffer']
   }),
 
   // creates a manifest.json mapping of name to hashed output used in template files
@@ -296,11 +297,22 @@ const config = {
       fs: false,
       vm: require.resolve('vm-browserify'),
       path: false,
+      util: require.resolve('util/'),
+      assert: require.resolve('assert/'),
+      stream: require.resolve('stream-browserify'),
+      zlib: require.resolve('browserify-zlib'),
+      buffer: require.resolve("buffer/")
     },
   },
   context: APP_DIR, // to automatically find tsconfig.json
   module: {
     rules: [
+      {
+        test: /\.m?js/,
+        resolve: {
+            fullySpecified: false
+        }
+      },
       {
         test: /datatables\.net.*/,
         loader: 'imports-loader',

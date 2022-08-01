@@ -872,8 +872,24 @@ class DatasourceEditor extends React.PureComponent {
 
   renderSourceFieldset(theme) {
     const { datasource } = this.state;
-    return (
+    return (      
       <div>
+        <div>
+        <ColumnButtonWrapper>
+                <span className="m-t-10 m-r-10">
+                  <Button
+                    buttonSize="small"
+                    buttonStyle="tertiary"
+                    onClick={this.syncMetadata}
+                    className="sync-from-source"
+                    id='syncButton'                    
+                  >
+                    <i className="fa fa-database" />{' '}
+                    {t('Sync columns from source')}
+                  </Button>
+                </span>
+              </ColumnButtonWrapper> 
+      </div>
         {this.allowEditSource && (
           <EditLockContainer>
             <span role="button" tabIndex={0} onClick={this.onChangeEditMode}>

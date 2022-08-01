@@ -93,7 +93,7 @@ interface DatabaseSelectorProps {
   handleError: (msg: string) => void;
   isDatabaseSelectEnabled?: boolean;
   onDbChange?: (db: DatabaseObject) => void;
-  onSchemaChange?: (schema?: string) => void;
+  onSchemaChange?: (table?:any,schema?: string,) => void;
   onSchemasLoad?: (schemas: Array<object>) => void;
   readOnly?: boolean;
   schema?: string;
@@ -210,15 +210,16 @@ export default function DatabaseSelector({
     if (currentDb) {
       setLoadingSchemas(true);
       const queryParams = rison.encode({ force: refresh > 0 });
-      const endpoint = `/api/v1/database/${currentDb.value}/schemas/?q=${queryParams}`;
+      const endpoint = `api/v1/database/database_metadata/`;
 
       // TODO: Would be nice to add pagination in a follow-up. Needs endpoint changes.
       SupersetClient.get({ endpoint })
         .then(({ json }) => {
-          const options = json.result.map((s: string) => ({
-            value: s,
-            label: s,
-            title: s,
+          const options = json.options.map((s: any) => ({
+            value: s.schema,
+            label: s.schema,
+            title: s.schema,
+            table: s.tables
           }));
           if (onSchemasLoad) {
             onSchemasLoad(options);
@@ -248,10 +249,13 @@ export default function DatabaseSelector({
     }
   }
 
-  function changeSchema(schema: SchemaValue) {
+  function changeSchema(tableData:any, schema: SchemaValue) {
     setCurrentSchema(schema);
+    if(schema){
+      sessionStorage.setItem('schemaTablesData', JSON.stringify(schema.table));
+    }
     if (onSchemaChange) {
-      onSchemaChange(schema.value);
+      onSchemaChange(tableData,schema.value,);
     }
   }
 
@@ -285,22 +289,25 @@ export default function DatabaseSelector({
   function renderSchemaSelect() {
     const refreshIcon = !formMode && !readOnly && (
       <RefreshLabel
-        onClick={() => setRefresh(refresh + 1)}
-        tooltipContent={t('Force refresh schema list')}
+        onClick={() => {
+          setRefresh(refresh + 1);
+          changeSchema(undefined);
+        }}
+        tooltipContent={t('Force refresh grid & table list')}
       />
     );
 
     return renderSelectRow(
       <Select
-        ariaLabel={t('Select schema or type schema name')}
+        ariaLabel={t('Select Grid or type Grid name')}
         disabled={readOnly}
-        header={<FormLabel>{t('Schema')}</FormLabel>}
+        header={<FormLabel>{t('Select Grid')}</FormLabel>}
         labelInValue
         lazyLoading={false}
         loading={loadingSchemas}
         name="select-schema"
-        placeholder={t('Select schema or type schema name')}
-        onChange={item => changeSchema(item as SchemaValue)}
+        placeholder={t('Select Grid or type Grid name')}
+        onChange={(tableData, item) => changeSchema(tableData, item as SchemaValue)}
         options={schemaOptions}
         showSearch
         value={currentSchema}
@@ -311,7 +318,7 @@ export default function DatabaseSelector({
 
   return (
     <DatabaseSelectorWrapper data-test="DatabaseSelector">
-      {renderDatabaseSelect()}
+      {/* {renderDatabaseSelect()} */}
       {renderSchemaSelect()}
     </DatabaseSelectorWrapper>
   );

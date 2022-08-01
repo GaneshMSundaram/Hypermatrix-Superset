@@ -37,6 +37,43 @@ import getDashboardUrl from 'src/dashboard/util/getDashboardUrl';
 import { getActiveFilters } from 'src/dashboard/util/activeDashboardFilters';
 import { getUrlParam } from 'src/utils/urlUtils';
 import { FILTER_BOX_MIGRATION_STATES } from 'src/explore/constants';
+import { usePDF, PDFDownloadLink, Page, Text, Image, Document, StyleSheet,pdf } from "@react-pdf/renderer";
+const styles = StyleSheet.create({
+  body: {
+    paddingTop: 35,
+    paddingBottom: 65,
+    paddingHorizontal: 35,
+  },
+  title: {
+    fontSize: 24,
+    textAlign: "center",
+  },
+  text: {
+    margin: 12,
+    fontSize: 14,
+    textAlign: "justify",
+    fontFamily: "Times-Roman",
+  },
+  image: {
+    marginVertical: 15,
+    marginHorizontal: 100,
+  },
+  header: {
+    fontSize: 12,
+    marginBottom: 20,
+    textAlign: "center",
+    color: "grey",
+  },
+  pageNumber: {
+    position: "absolute",
+    fontSize: 12,
+    bottom: 30,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    color: "grey",
+  },
+});
 
 const propTypes = {
   addSuccessToast: PropTypes.func.isRequired,
@@ -81,6 +118,7 @@ const defaultProps = {
 const MENU_KEYS = {
   SAVE_MODAL: 'save-modal',
   SHARE_DASHBOARD: 'share-dashboard',
+  SHARE_DASHBOARD_PDF:'share-dashboard in PDF',
   REFRESH_DASHBOARD: 'refresh-dashboard',
   AUTOREFRESH_MODAL: 'autorefresh-modal',
   SET_FILTER_MAPPING: 'set-filter-mapping',
@@ -147,9 +185,32 @@ class HeaderActionsDropdown extends React.PureComponent {
     this.props.setRefreshFrequency(refreshInterval, isPersistent);
     this.props.startPeriodicRender(refreshInterval * 1000);
   }
-
+  
+  MyDoc = () => (
+    <Document>
+      <Page>
+        lorem ipsum sds sd sdsd
+      </Page>
+    </Document>
+  );
+  
+  savePdf = () => (
+    <div className='bigbro'>
+      <PDFDownloadLink document={'lorem'} fileName="somename.pdf">
+        {({ blob, url, loading, error }) =>
+          loading ? (<button>Loading batra...</button>) 
+          : (   <button>goldy</button>       )
+          
+        }
+      </PDFDownloadLink>
+    </div>
+  );
+  
   handleMenuClick({ key, domEvent }) {
     switch (key) {
+      case MENU_KEYS.SHARE_DASHBOARD_PDF:
+        this.savePdf();
+        break; 
       case MENU_KEYS.REFRESH_DASHBOARD:
         this.props.forceRefreshAllCharts();
         this.props.addSuccessToast(t('Data refreshed'));
@@ -268,6 +329,11 @@ class HeaderActionsDropdown extends React.PureComponent {
             dashboardId={dashboardId}
           />
         )}
+        <Menu.Item
+          key={MENU_KEYS.SHARE_DASHBOARD_PDF}
+        >
+          {t('Share Dashboard PDF')}
+        </Menu.Item>
         <Menu.Item
           key={MENU_KEYS.REFRESH_DASHBOARD}
           data-test="refresh-dashboard-menu-item"

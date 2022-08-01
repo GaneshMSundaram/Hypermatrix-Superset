@@ -34,6 +34,17 @@ import RefreshLabel from 'src/components/RefreshLabel';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import WarningIconWithTooltip from 'src/components/WarningIconWithTooltip';
 import { useToasts } from 'src/components/MessageToasts/withToasts';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionItemHeading,
+  AccordionItemButton,
+  AccordionItemPanel,
+} from 'react-accessible-accordion';
+
+// Demo styles, see 'Styles' section below for some notes on use.
+import 'react-accessible-accordion/dist/fancy-example.css';
+const tableItemArray: (TableOption[]) = [];
 
 const TableSelectorWrapper = styled.div`
   ${({ theme }) => `
@@ -170,34 +181,19 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
   const [tableOptions, setTableOptions] = useState<TableOption[]>([]);
   const { addSuccessToast } = useToasts();
 
-  useEffect(() => {
-    // reset selections
-    if (database === undefined) {
-      setCurrentDatabase(undefined);
-      setCurrentSchema(undefined);
-      setCurrentTable(undefined);
-    }
-  }, [database]);
 
   useEffect(() => {
     if (currentDatabase && currentSchema) {
       setLoadingTables(true);
-      const encodedSchema = encodeURIComponent(currentSchema);
       const forceRefresh = refresh !== previousRefresh;
-      // TODO: Would be nice to add pagination in a follow-up. Needs endpoint changes.
-      const endpoint = encodeURI(
-        `/superset/tables/${currentDatabase.id}/${encodedSchema}/undefined/${forceRefresh}/`,
-      );
-
       if (previousRefresh !== refresh) {
         setPreviousRefresh(refresh);
       }
 
-      SupersetClient.get({ endpoint })
-        .then(({ json }) => {
+        const schemaTablesData = JSON.parse(sessionStorage.getItem("schemaTablesData"));        
           const options: TableOption[] = [];
           let currentTable;
-          json.options.forEach((table: Table) => {
+          schemaTablesData.forEach((table: Table) => {
             const option = {
               value: table.value,
               label: <TableOption table={table} />,
@@ -209,52 +205,161 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
             }
           });
           if (onTablesLoad) {
-            onTablesLoad(json.options);
+            onTablesLoad(schemaTablesData);
           }
           setTableOptions(options);
           setCurrentTable(currentTable);
           setLoadingTables(false);
-          if (forceRefresh) addSuccessToast('List updated');
-        })
-        .catch(e => {
-          setLoadingTables(false);
-          handleError(t('There was an error loading the tables'));
-        });
+          if (forceRefresh) addSuccessToast('List updated');         
     }
     // We are using the refresh state to re-trigger the query
     // previousRefresh should be out of dependencies array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDatabase, currentSchema, onTablesLoad, refresh]);
 
+  const expandCollapse = () => {
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function () {
+        this.classList.toggle("activeTable");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+    }
+  }
   function renderSelectRow(select: ReactNode, refreshBtn: ReactNode) {
     return (
       <div className="section">
-        <span className="select">{select}</span>
-        <span className="refresh">{refreshBtn}</span>
+        <span className="select tableColumn">{select}</span>
       </div>
     );
   }
+  const removeDisabled = () => {
+    let element = document.getElementById("arrowIcon1");
+   element.classList.remove("fa-disabled");
+   let element2 = document.getElementById("arrowIcon2");
+   element2.classList.remove("fa-disabled");
+   let element3 = document.getElementById("arrowIcon3");
+   element3.classList.remove("fa-disabled");
+  }
 
-  const internalTableChange = (table?: TableOption) => {
+  const internalTableChange = (evt: any, table?: TableOption) => {
     setCurrentTable(table);
     if (onTableChange && currentSchema) {
       onTableChange(table?.value, currentSchema);
     }
-  };
+    arrowCheck();
+    var checkboxes = document.getElementsByName(`${table?.text}`);
+    if (evt.target.checked) {
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = true;
+        const item = checkboxes[i];
+        var newTable = {
+          table: table?.text,
+          columns: item.value,
+          aliasName:item.dataset.name,
+          type: item.dataset.type
+        }
+        sessionStorage.setItem('arrowClicked', 'false');
+        const findItem = tableItemArray.findIndex(e => e?.columns === item.value && e?.table === table?.text)
+        if (findItem === -1) {
+          tableItemArray.push(newTable);
+        }
+      }
+    } else {
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = false;
+        const item = checkboxes[i];
+        const findItem = tableItemArray.findIndex(e => e?.columns === item.value && e?.table === table?.text)
+        if (findItem !== -1) {
+          tableItemArray.splice(findItem, 1);
+        }
+      }
+      
+    }
+    sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
+    // sessionStorage.setItem('pageDirty', 'true');
+    removeDisabled();
+  }; 
+  const arrowCheck = () => {
+    let arrowCheck = sessionStorage.getItem('arrowClicked');
+      if (arrowCheck === 'true') {
+        tableItemArray.length = 0;
+      }
+  } 
+  const tableSelection = (evt: any, index: number, table?: TableOption) => {
+    var totalCheckbox = document.querySelectorAll(`input[name=${CSS.escape(table.text)}]`).length;
+    var totalChecked = document.querySelectorAll(`input[name=${CSS.escape(table.text)}]:checked`).length;
 
+    // When total options equals to total checked option
+    if (totalCheckbox == totalChecked) {
+      document.getElementsByName("showhide")[index].checked = true;
+      
+    } else {
+      document.getElementsByName("showhide")[index].checked = false;
+    }
+    // Data session storage
+    if (evt.target.checked === true) {
+      arrowCheck();
+      var newTable = {
+        table: table?.text,
+        columns: evt.target.value,
+        type: evt.target.dataset.type,
+        aliasName:evt.target.dataset.name
+      }
+      sessionStorage.setItem('arrowClicked', 'false');
+      tableItemArray.push(newTable);
+    } else {
+      const findItem = tableItemArray.findIndex(e => e?.columns === evt.target.value)
+      if (findItem !== -1) {
+        tableItemArray.splice(findItem, 1);
+      }
+    }
+    removeDisabled();
+    sessionStorage.setItem("selectedTableData", JSON.stringify(tableItemArray));
+    // sessionStorage.setItem('pageDirty', 'true');
+  }
   const internalDbChange = (db: DatabaseObject) => {
     setCurrentDatabase(db);
     if (onDbChange) {
       onDbChange(db);
     }
   };
-
-  const internalSchemaChange = (schema?: string) => {
-    setCurrentSchema(schema);
+  const clearCheckboxes = () => {
+    var allCheckboxes = document.getElementsByClassName("leftCheckBox");
+    for (var i = 0; i < allCheckboxes.length; i++) {
+      allCheckboxes[i].checked = false;
+    }
+    sessionStorage.setItem("arrowClicked", 'true');
+  }
+  const schemachangeInner = (schema?: string) => {
+    sessionStorage.setItem('schemaName', schema.key);
     if (onSchemaChange) {
       onSchemaChange(schema);
+      $(".ant-select-dropdown:not([class*='ant-select-dropdown-hidden'])").addClass("ant-select-dropdown-hidden");
     }
-    internalTableChange(undefined);
+  }
+  const internalSchemaChange = (schema?: string) => {
+    const checkPageDirty = sessionStorage.getItem('pageDirty');
+    if(checkPageDirty === 'true'){
+      if (confirm("By changing Grid, selections made in current Grid will be lost. Continue ?")) {
+        setCurrentSchema(schema);
+        schemachangeInner(schema);
+        sessionStorage.clear();       
+        clearCheckboxes();       
+      } else {
+        return;
+      }        
+    }else{
+      setCurrentSchema(schema);
+      schemachangeInner(schema);       
+    }    
   };
 
   function renderDatabaseSelector() {
@@ -297,21 +402,46 @@ const TableSelector: FunctionComponent<TableSelectorProps> = ({
     );
 
     const select = (
-      <Select
-        ariaLabel={t('Select table or type table name')}
-        disabled={disabled}
-        filterOption={handleFilterOption}
-        header={header}
-        labelInValue
-        lazyLoading={false}
-        loading={loadingTables}
-        name="select-table"
-        onChange={(table: TableOption) => internalTableChange(table)}
-        options={tableOptions}
-        placeholder={t('Select table or type table name')}
-        showSearch
-        value={currentTable}
-      />
+      <Accordion allowZeroExpanded allowMultipleExpanded>
+        {tableOptions.map((item, index) => {
+          return (
+            <AccordionItem>
+              <AccordionItemHeading>
+                <AccordionItemButton>
+                  <input
+                    type="checkbox"
+                    className='leftCheckBox'
+                    id={`custom-checkbox-${index}`}
+                    name="showhide"
+                    value={item.value}
+                    onChange={() => internalTableChange(event, item)}
+                  />
+                  <label htmlFor={`custom-checkbox-${index}`}>{item.text}</label>
+                </AccordionItemButton>
+              </AccordionItemHeading>
+              <AccordionItemPanel>
+                {item.label.props.table.columns.map((colData: any, colIndex: any) => {
+                  return (
+                    <div className="tableSection">
+                      <input
+                        type="checkbox"
+                        className='leftCheckBox'
+                        id={`column-checkbox-${colData.name}`}
+                        name={item.value}
+                        data-type={colData.type}
+                        data-name={colData.label}
+                        value={`${colData.name}`}
+                        onChange={() => tableSelection(event, index, tableOptions[index])}
+                      />
+                      <label htmlFor={`column-checkbox-${colData.name}`}>{colData.name}</label>
+                    </div>
+                  )
+                })}
+              </AccordionItemPanel>
+            </AccordionItem>
+          )
+        })}
+      </Accordion>
     );
 
     const refreshLabel = !formMode && !readOnly && (

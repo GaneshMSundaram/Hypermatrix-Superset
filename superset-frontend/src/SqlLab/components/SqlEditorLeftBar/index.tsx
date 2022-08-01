@@ -37,7 +37,6 @@ interface actionsTypes {
   collapseTable: (table: Table) => void;
   expandTable: (table: Table) => void;
   addTable: (queryEditor: any, value: any, schema: any) => void;
-  setDatabases: (arg0: any) => {};
   addDangerToast: (msg: string) => void;
   queryEditorSetSchema: (queryEditor: QueryEditor, schema?: string) => void;
   queryEditorSetSchemaOptions: () => void;
@@ -140,7 +139,6 @@ export default function SqlEditorLeftBar({
     <div className="SqlEditorLeftBar">
       <TableSelector
         database={database}
-        getDbList={actions.setDatabases}
         handleError={actions.addDangerToast}
         onDbChange={onDbChange}
         onSchemaChange={onSchemaChange}
@@ -151,28 +149,7 @@ export default function SqlEditorLeftBar({
         sqlLabMode
       />
       <div className="divider" />
-      <StyledScrollbarContainer>
-        <div
-          css={css`
-            height: ${tableMetaDataHeight}px;
-          `}
-        >
-          <Collapse
-            activeKey={tables
-              .filter(({ expanded }) => expanded)
-              .map(({ id }) => id)}
-            css={collapseStyles}
-            expandIconPosition="right"
-            ghost
-            onChange={onToggleTable}
-            expandIcon={renderExpandIconWithTooltip}
-          >
-            {tables.map(table => (
-              <TableElement table={table} key={table.id} actions={actions} />
-            ))}
-          </Collapse>
-        </div>
-      </StyledScrollbarContainer>
+      
       {shouldShowReset && (
         <Button
           buttonSize="small"
