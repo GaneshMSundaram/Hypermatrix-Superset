@@ -538,7 +538,7 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
             )
             return self.response_422(message=str(ex))
 
-    @expose("/sqlbuilder_metadata/<sql_json>", methods=["POST"])
+    @expose("/sqlbuilder_metadata/", methods=["POST"])
     @protect()
     @safe
     # @rison(database_schemas_query_schema)
