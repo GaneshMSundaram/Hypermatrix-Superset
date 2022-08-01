@@ -47,7 +47,8 @@ class SQLBuilder:
         global group_by_caluse
         schema = data['schemaName']
         table_column_dict = defaultdict(list)
-        table_lis = get_tables_from_where_clause(where_clause.split("="), table_lis)
+        if "(1 = 1)" != where_clause:
+            table_lis = get_tables_from_where_clause(where_clause.split("="), table_lis)
         z = 0
         select_column = []
         db_uri = (
