@@ -24,7 +24,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import Split from 'react-split';
-import { t, styled, withTheme } from '@superset-ui/core';
+import { t, styled, withTheme,SupersetClient } from '@superset-ui/core';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import StyledModal from 'src/components/Modal';
@@ -36,6 +36,8 @@ import { Input } from 'src/components/Input';
 import { Menu } from 'src/components/Menu';
 import Icons from 'src/components/Icons';
 import { detectOS } from 'src/utils/common';
+import { format } from 'sql-formatter';
+
 import {
   addQueryEditor,
   CtasEnum,
@@ -75,6 +77,9 @@ import ShareSqlLabQuery from '../ShareSqlLabQuery';
 import SqlEditorLeftBar from '../SqlEditorLeftBar';
 import AceEditorWrapper from '../AceEditorWrapper';
 import RunQueryActionButton from '../RunQueryActionButton';
+import { QueryBuilder, Field, formatQuery } from 'react-querybuilder';
+import 'react-querybuilder/dist/query-builder.css';
+import getOperators from './getOperators';
 
 const LIMIT_DROPDOWN = [10, 100, 1000, 10000, 100000];
 const SQL_EDITOR_PADDING = 10;
@@ -83,6 +88,10 @@ const INITIAL_SOUTH_PERCENT = 70;
 const SET_QUERY_EDITOR_SQL_DEBOUNCE_MS = 2000;
 const VALIDATION_DEBOUNCE_MS = 600;
 const WINDOW_RESIZE_THROTTLE_MS = 100;
+// const conditionDataArray = [];
+const measureDataArray = [];
+const dimensionDataArray = [];
+var generateBtnFlag = false;
 
 const appContainer = document.getElementById('app');
 const bootstrapData = JSON.parse(
@@ -168,6 +177,9 @@ class SqlEditor extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      getSelectedTableData : [],
+      measureItems : [],
+      getConditionsData: [],
       autorun: props.queryEditor.autorun,
       ctas: '',
       northPercent: props.queryEditor.northPercent || INITIAL_NORTH_PERCENT,
@@ -179,6 +191,11 @@ class SqlEditor extends React.PureComponent {
       ),
       showCreateAsModal: false,
       createAs: '',
+      dbQuery: {
+        id: 'root',
+        combinator: 'and',
+        rules: []
+      },
     };
     this.sqlEditorRef = React.createRef();
     this.northPaneRef = React.createRef();
@@ -187,6 +204,7 @@ class SqlEditor extends React.PureComponent {
     this.onResizeStart = this.onResizeStart.bind(this);
     this.onResizeEnd = this.onResizeEnd.bind(this);
     this.canValidateQuery = this.canValidateQuery.bind(this);
+    this.updateDbQuery = this.updateDbQuery.bind(this);
     this.runQuery = this.runQuery.bind(this);
     this.stopQuery = this.stopQuery.bind(this);
     this.saveQuery = this.saveQuery.bind(this);
@@ -396,6 +414,12 @@ class SqlEditor extends React.PureComponent {
     });
   };
 
+  // update dbQuery state
+  updateDbQuery(newDbQuery){
+    newDbQuery = newDbQuery;
+    this.setState({dbQuery : newDbQuery})
+  }
+
   handleWindowResize() {
     this.setState({ height: this.getSqlEditorHeight() });
   }
@@ -485,7 +509,236 @@ class SqlEditor extends React.PureComponent {
   ctasChanged(event) {
     this.setState({ ctas: event.target.value });
   }
+  getDimesnsion = (event) => {
+    let checkArrowDisabled = document.getElementById('arrowIcon1').classList.contains('fa-disabled');
+    if (!checkArrowDisabled) {
+      const getSessionData = JSON.parse(sessionStorage.getItem("selectedTableData"));
+      const finalData = this.state.getSelectedTableData.concat(getSessionData);
+      const jsonObject = finalData.map(JSON.stringify);
+      const uniqueSet = new Set(jsonObject);
+      const uniqueArray = Array.from(uniqueSet).map(JSON.parse);
+      this.setState({
+        getSelectedTableData: uniqueArray
+      })
+      this.clearCheckboxes();
+      this.disableArrow(event);
+      let element = document.getElementById("arrowIcon3");
+      element.classList.add("fa-disabled");
+      let element2 = document.getElementById("arrowIcon2");
+      element2.classList.add("fa-disabled");
+      setTimeout(() => {
+        this.disableGenerateBtn();
+      }, 100);
+    }
+  }
+  getMeasures = (event) => {
+    let checkArrowDisabled = document.getElementById('arrowIcon2').classList.contains('fa-disabled');
+    if (!checkArrowDisabled) {
+      this.getMeasureItems();
+      this.disableArrow(event);
+      this.clearCheckboxes();
+      // this.removeItems();
+      setTimeout(() => {
+        this.disableGenerateBtn();
+      }, 100);
+      let element = document.getElementById("arrowIcon3");
+      element.classList.add("fa-disabled");
+      let element2 = document.getElementById("arrowIcon1");
+      element2.classList.add("fa-disabled");
+    }
+  }
+  getMeasureItems = () => {
+      const getSessionData2 = JSON.parse(sessionStorage.getItem("selectedTableData"));
+      const finalConditionData = this.state.measureItems.concat(getSessionData2);
+      this.setState({
+        measureItems: finalConditionData
+      })
+  }
+  
+  removeConditions = (event) =>{
+    event.target.parentNode.parentNode.parentNode.remove();
+  }
+  removeItems = () => {
+    let dimesnionArray = this.state.getSelectedTableData.slice();
+    let removeItems = [...document.getElementsByClassName('activeDim')];
+    removeItems.forEach(item => {
+      item.classList.remove('activeDim')
+      let tableCol = item.innerText.split('.');
+      let table = tableCol[0];
+      let column = tableCol[1];
+      
+      for (let index = 0; index < dimesnionArray.length; index++) {
+        const element = dimesnionArray[index];
+        if(element.columns === column && element.table === table){
+          dimesnionArray.splice(index, 1);          
+        }
+      }
+      this.setState({
+        getSelectedTableData: dimesnionArray
+      })
+    });
+    setTimeout(() => {
+      this.disableGenerateBtn();      
+    }, 100);
+  }
+  removeMeasures = () => {
+    let measureArray = this.state.measureItems.slice();
+    let removeMeasureItems = [...document.getElementsByClassName('activeMeasures')];
+    removeMeasureItems.forEach(item => {
+      item.classList.remove('activeMeasures');
+      let tableCol = item.firstChild.firstChild.innerText.split('.');
+      let table = tableCol[0];
+      let column = tableCol[1];
+      
+      for (let index = 0; index < measureArray.length; index++) {
+        const element = measureArray[index];
+        if(element.columns === column && element.table === table){
+          measureArray.splice(index, 1);          
+        }
+      }
+      this.setState({
+        measureItems: measureArray
+      })
+    });
+    
+    setTimeout(() => {
+      this.disableGenerateBtn();      
+    }, 100);
+  }
+  getConditions = (event) => {
+    let checkArrowDisabled = document.getElementById('arrowIcon3').classList.contains('fa-disabled');
+    if (!checkArrowDisabled) {
+      const getSessionData2 = JSON.parse(sessionStorage.getItem("selectedTableData"));
+      const fields = getSessionData2.map(function(row) {     
+        return { name : row.table+'.' +row.columns, label : row.table+'.' +row.columns }
+     })
+      const finalConditionData = this.state.getConditionsData.concat(fields);
+      
+      this.setState({
+        getConditionsData: finalConditionData
+      })
+      this.clearCheckboxes();
+      this.disableArrow(event);
+      let element = document.getElementById("arrowIcon2");
+      element.classList.add("fa-disabled");
+      let element2 = document.getElementById("arrowIcon1");
+      element2.classList.add("fa-disabled");      
+    }
+  }
+  
+  clearCheckboxes = () => {
+    var allCheckboxes = document.getElementsByClassName("leftCheckBox");
+    for (var i = 0; i < allCheckboxes.length; i++) {
+      allCheckboxes[i].checked = false;
+    }
+    sessionStorage.setItem("arrowClicked", 'true');
+  }
+  disableArrow(event) {    
+    var element = event.target;
+    element.classList.add("fa-disabled");
+  } 
+  addActiveDim(event) {
+    var _this = event.target.parentNode.parentNode;
+    _this.classList.toggle("activeDim")
+  }
+  addActiveMeasures(event) {
+    var _this = event.target.parentNode.parentNode;
+    _this.classList.toggle("activeMeasures")
+  }
 
+  loadMeasureData = () => {
+    let dataLength = document.getElementsByClassName('selMeasures');
+    // let measureDataArray = [];
+    let arr = Array.from(dataLength);
+    measureDataArray.length=0;
+    for (let index = 0; index < arr.length; index++) {
+      const item = arr[index];
+      let findIndex = item.id.split('_')[1];
+      let tableColValSplit = document.getElementById(`selMeasure_${findIndex}`).innerText.split('.');
+      let tableVal = tableColValSplit[0];
+      let columnVal = tableColValSplit[1];
+      let aliasName = $(`#selMeasure_${findIndex}`).data('name'); 
+      let operator2Val = document.getElementById(`selMeasureOperator_${findIndex}`).value;
+      const measureData = {
+        table: tableVal,
+        columns: columnVal,
+        aliasName: aliasName,
+        operator2: operator2Val,
+      }
+      measureDataArray.push(measureData);
+    }
+  }
+  loadDimensionData = () => {
+    let dataLength = document.getElementsByClassName('dimensionSel');
+    let arr = Array.from(dataLength);
+    dimensionDataArray.length=0;
+    for (let index = 0; index < arr.length; index++) {
+      const item = arr[index];
+      let findIndex = item.id.split('_')[1];
+      let tableColValSplit = document.getElementById(`selectedItem_${findIndex}`).innerText.split('.');
+      let tableVal = tableColValSplit[0];
+      let columnVal = tableColValSplit[1];
+      let aliasName = $(`#selectedItem_${findIndex}`).data('name');
+
+      const dimensionData = {
+        table: tableVal,
+        columns: columnVal,
+        aliasName: aliasName
+      }
+      dimensionDataArray.push(dimensionData);
+    }
+  }
+  disableGenerateBtn = () =>{
+    let checkDimension = document.getElementById('dimensionList').innerHTML.trim();
+    let checkMeasure = document.getElementById('measureList').innerHTML.trim();
+    let getBtn = document.getElementById('generateQueryBtn');
+    if(checkDimension === '' && checkMeasure === ''){
+      getBtn.classList.add("disabledBtn");
+      generateBtnFlag = false;
+    }else{
+      getBtn.classList.remove("disabledBtn");
+      generateBtnFlag = true;
+    }
+  }  
+  generateQuery = () => {
+    if (generateBtnFlag) {
+      $('.freezeScreen').css('display','block');
+      this.loadDimensionData();
+      this.loadMeasureData();
+      const schemaName = sessionStorage.getItem('schemaName');
+      const conditionText = $('#sqlData').text();
+      // const replaceSingleQuote = conditionText.replace(/'/g, '"');
+      const payload = {
+        schemaName: schemaName,
+        dimensionData: dimensionDataArray,
+        measureData: measureDataArray,
+        conditionData: conditionText,
+        conditionDataJson: this.state.dbQuery
+      }
+      console.log('Final Payload: ', payload);
+      const endpoint = 'api/v1/database/sqlbuilder_metadata/';
+      const querySettings = {
+        endpoint,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      };
+      SupersetClient.post(querySettings)
+      .then((response) => {
+        $('.freezeScreen').css('display','none');
+        $('.ace_text-layer').text(response.json.data);
+        setTimeout(() => {
+          const newFormatText = format($('.ace_text-layer').text());
+          $('.ace_text-layer').text(newFormatText);
+        }, 0);
+        
+
+      })      
+      .catch((error) => {
+        console.error('Error:', error);
+        $('.freezeScreen').css('display','none');
+      });
+    }
+  }
   queryPane() {
     const hotkeys = this.getHotkeyConfig();
     const { aceEditorHeight, southPaneHeight } =
@@ -506,6 +759,82 @@ class SqlEditor extends React.PureComponent {
         onDragStart={this.onResizeStart}
         onDragEnd={this.onResizeEnd}
       >
+        <div className='newSectionWraper'>
+          <div className='newSection'>
+            <div className='newSectionLeft positionRelative'>
+              <span className='positionAbsolute' ><i id='arrowIcon1' className="fa fa-disabled fa-arrow-circle-right cursor-pointer" onClick={() => this.getDimesnsion(event)}/></span>
+              <h4>Selected Dimensions</h4>
+              <div className='removeSection'><span className='fa fa-times cursor-pointer' onClick={() => this.removeItems()}></span></div>
+              <div className='leftInnerBody borderBox'>
+                <ul id='dimensionList'>
+                  {this.state.getSelectedTableData.map((item, index) => {
+                    return (
+                      <li key={index}>
+                        <div id={`dimItem_${index}`} className="tableSection dimensionSel">
+                          <span data-name={item.aliasName} id={`selectedItem_${index}`} onClick={() => this.addActiveDim(event)} className='contentSection'>{item.table}.{item.columns}</span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+            <div className='newSectionRight positionRelative'>
+              <span className='positionAbsolute'><i id='arrowIcon2' onClick={() => this.getMeasures(event)} className="fa fa-arrow-circle-right fa-disabled cursor-pointer"/></span>
+              <h4>Selected Measures</h4>
+              <div className='removeSection'><span className='fa fa-times cursor-pointer' onClick={() => this.removeMeasures()}></span></div>
+              <div className='rightInnerBody borderBox'>
+              <ul id='measureList'>
+                  {this.state.measureItems.map((item, index) => {
+                    return (
+                      <li key={index}>
+                        <div id={`measure_${index}`} onClick={() => this.addActiveMeasures(event)} className='selMeasures contentSection'>
+                          <span data-name={item.aliasName} id={`selMeasure_${index}`} className='textSection'>{item.table}.{item.columns}</span>
+                          <div className='typeSection'>{item.type}</div>
+                          {item.type === 'VARCHAR' || item.type === 'TEXT' ?
+                          <select id={`selMeasureOperator_${index}`}>
+                              <option value="count">count</option>
+                              <option value="count distinct">count distinct</option>
+                              <option value="max">max</option>
+                              <option value="min">min</option>
+                          </select>
+                            :
+                          <select id={`selMeasureOperator_${index}`}>
+                            <option value="sum">sum</option>
+                            <option value="avg">avg</option>
+                            <option value="max">max</option>
+                            <option value="min">min</option>
+                            <option value="count">count</option>
+                            <option value="count distinct">count distinct</option>
+                            </select>}                          
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>              
+              </div>
+            </div>            
+          </div>
+          <div className='conditionBox'>
+            <div className='positionRelative'>
+              <span className='positionAbsolute'><i id='arrowIcon3'  onClick={() => this.getConditions(event)} className="fa fa-disabled fa-arrow-circle-right cursor-pointer"/></span>
+            </div>
+            <h5>Conditions (Please include single quotations when using text data type comparisons ex : Name = 'xyz')</h5>
+            <div className='borderBox'>
+              <QueryBuilder
+                fields={this.state.getConditionsData}
+                getOperators={getOperators}
+                onQueryChange={this.updateDbQuery}
+                query={this.state.dbQuery}
+              /> 
+              <pre id='sqlData'>{formatQuery(this.state.dbQuery,'sql')}</pre>
+              {/* <pre>{formatQuery(this.state.dbQuery,'json')}</pre>               */}
+            </div>
+            <div className='generateQuery'><div id="generateQueryBtn" className='generateQueryBtn disabledBtn' onClick={() => this.generateQuery()}>Generate Query</div></div>
+
+          </div>
+        </div>
+        
         <div ref={this.northPaneRef} className="north-pane">
           <AceEditorWrapper
             actions={this.props.actions}
@@ -739,8 +1068,8 @@ class SqlEditor extends React.PureComponent {
     const leftBarStateClass = this.props.hideLeftBar
       ? 'schemaPane-exit-done'
       : 'schemaPane-enter-done';
-    return (
-      <div ref={this.sqlEditorRef} className="SqlEditor">
+    return (      
+      <div ref={this.sqlEditorRef} className="SqlEditor">        
         <CSSTransition
           classNames="schemaPane"
           in={!this.props.hideLeftBar}

@@ -227,30 +227,6 @@ const RightMenu = ({
           ])}
           {(navbarRight.version_string || navbarRight.version_sha) && [
             <Menu.Divider key="version-info-divider" />,
-            <Menu.ItemGroup key="about-section" title={t('About')}>
-              <div className="about-section">
-                {navbarRight.show_watermark && (
-                  <div css={versionInfoStyles}>
-                    {t('Powered by Apache Superset')}
-                  </div>
-                )}
-                {navbarRight.version_string && (
-                  <div css={versionInfoStyles}>
-                    Version: {navbarRight.version_string}
-                  </div>
-                )}
-                {navbarRight.version_sha && (
-                  <div css={versionInfoStyles}>
-                    SHA: {navbarRight.version_sha}
-                  </div>
-                )}
-                {navbarRight.build_number && (
-                  <div css={versionInfoStyles}>
-                    Build: {navbarRight.build_number}
-                  </div>
-                )}
-              </div>
-            </Menu.ItemGroup>,
           ]}
         </SubMenu>
         {navbarRight.show_language_picker && (

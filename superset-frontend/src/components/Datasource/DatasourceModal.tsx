@@ -126,6 +126,8 @@ const DatasourceModal: FunctionComponent<DatasourceModalProps> = ({
     })
       .then(({ json }) => {
         addSuccessToast(t('The dataset has been saved'));
+        $('.sync-from-source').trigger('click');
+        // document.getElementsByClassName('.sync-from-source' );
         onDatasourceSave({
           ...json,
           owners: currentDatasource.owners,

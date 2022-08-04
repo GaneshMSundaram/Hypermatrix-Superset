@@ -169,13 +169,17 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 # Your App secret key. Make sure you override it on superset_config.py.
 # Use a strong complex alphanumeric string and use a tool to help you generate
 # a sufficiently random sequence, ex: openssl rand -base64 42"
-SECRET_KEY = CHANGE_ME_SECRET_KEY
+SECRET_KEY = "\2\1thisismyscretkey\1\2\\e\\y\\y\\h"
 
 # The SQLAlchemy connection string.
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(DATA_DIR, "superset.db")
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres123@postgresql.cqjxk9hplpul.us-east-2.rds.amazonaws.com:5432/Superset_Metadata'
 # SQLALCHEMY_DATABASE_URI = 'mysql://myapp@localhost/myapp'
 # SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:mynewpassword@localhost:5432/superset'
 
+SQLALCHEMY_KNOWLEDGE_DATABASE_URI = 'postgresql://postgres:postgres123@' \
+                                    'postgresql.cqjxk9hplpul.' \
+                          'us-east-2.rds.amazonaws.com:5432/KnowledgeBase'
 # In order to hook up a custom password store for all SQLACHEMY connections
 # implement a function that takes a single argument of type 'sqla.engine.url',
 # returns a password and set SQLALCHEMY_CUSTOM_PASSWORD_STORE.
@@ -201,7 +205,7 @@ SQLALCHEMY_ENCRYPTED_FIELD_TYPE_ADAPTER = (  # pylint: disable=invalid-name
 QUERY_SEARCH_LIMIT = 1000
 
 # Flask-WTF flag for CSRF
-WTF_CSRF_ENABLED = True
+WTF_CSRF_ENABLED = False
 
 # Add endpoints that need to be exempt from CSRF protection
 WTF_CSRF_EXEMPT_LIST = [
@@ -372,7 +376,7 @@ DEFAULT_FEATURE_FLAGS: Dict[str, bool] = {
     # make GET request to explore_json. explore_json accepts both GET and POST request.
     # See `PR 7935 <https://github.com/apache/superset/pull/7935>`_ for more details.
     "ENABLE_EXPLORE_JSON_CSRF_PROTECTION": False,
-    "ENABLE_TEMPLATE_PROCESSING": False,
+    "ENABLE_TEMPLATE_PROCESSING": True,
     "ENABLE_TEMPLATE_REMOVE_FILTERS": False,
     "KV_STORE": False,
     # When this feature is enabled, nested types in Presto will be

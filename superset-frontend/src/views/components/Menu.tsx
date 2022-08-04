@@ -262,7 +262,9 @@ export function Menu({
     );
   };
   return (
+    
     <StyledHeader className="top" id="main-menu" role="navigation">
+      <div className='freezeScreen'><img width="80" height="80" src="https://i.gifer.com/ZZ5H.gif" className='preloader'/></div>
       <Global styles={globalStyles(theme)} />
       <Row>
         <Col md={16} xs={24}>

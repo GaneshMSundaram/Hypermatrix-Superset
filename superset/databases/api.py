@@ -28,7 +28,19 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from marshmallow import ValidationError
 from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 
-from superset import app, event_logger
+from superset import (
+    app,
+    appbuilder,
+    conf,
+    db,
+    event_logger,
+    is_feature_enabled,
+    results_backend,
+    results_backend_use_msgpack,
+    sql_lab,
+    viz,
+)
+from superset.utils import core as utils, csv
 from superset.commands.importers.exceptions import NoValidFilesFoundError
 from superset.commands.importers.v1.utils import get_contents_from_bundle
 from superset.constants import MODEL_API_RW_METHOD_PERMISSION_MAP, RouteMethod
@@ -72,12 +84,18 @@ from superset.extensions import security_manager
 from superset.models.core import Database
 from superset.typing import FlaskResponse
 from superset.utils.core import error_msg_from_exception
+from superset.views.base import json_error_response, json_success
 from superset.views.base_api import (
     BaseSupersetModelRestApi,
     requires_form_data,
     requires_json,
     statsd_metrics,
 )
+import urllib.request
+
+from superset.views.core import Superset
+from superset.databases.postgresdao import PostgresDatabaseDAO
+from superset.databases.sqlBuilder import SQLBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +114,9 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         "function_names",
         "available",
         "validate_parameters",
+        "schemas_greeting",
+        "database_metadata",
+        "sqlbuilder_metadata"
     }
     resource_name = "database"
     class_permission_name = "Database"
@@ -400,6 +421,178 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         except DatabaseDeleteFailedError as ex:
             logger.error(
                 "Error deleting model %s: %s",
+                self.__class__.__name__,
+                str(ex),
+                exc_info=True,
+            )
+            return self.response_422(message=str(ex))
+
+    @expose("/<int:pk>/schemas_greeting/<schema_name>")
+    @protect()
+    @safe
+    @rison(database_schemas_query_schema)
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}" f".schemas",
+        log_to_statsd=False,
+    )
+    def schemas_greeting(self, pk: int, schema_name: str, **kwargs: Any) -> FlaskResponse:
+       return self.response(200, message="Hello")
+
+       ########################################## Get Database metadata #########################################
+
+    @expose("/database_metadata/")
+    @protect()
+    @safe
+    # @rison(database_schemas_query_schema)
+    # @check_datasource_access
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args,
+                      **kwargs: f"{self.__class__.__name__}" f".database_metadata",
+        log_to_statsd=False,
+    )
+    def database_metadata(
+        self, **kwargs: Any
+    ) -> FlaskResponse:
+        """Database metadata
+          ---
+          get:
+            description: Endpoint to fetch database metadata including tables & columns of each table
+            responses:
+              200:
+                description: JSON database metadata
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/TableMetadataResponseSchema"
+              400:
+                $ref: '#/components/responses/400'
+              401:
+                $ref: '#/components/responses/401'
+              404:
+                $ref: '#/components/responses/404'
+              422:
+                $ref: '#/components/responses/422'
+              500:
+                $ref: '#/components/responses/500'
+          """
+        try:
+            schema_name = "kb_config"
+            df = PostgresDatabaseDAO.get_dataframe(self)
+            if df.empty:
+                return {}
+
+            group_grid_name = df.groupby(['gridConfigurationId'])
+            unq_schemas = df['gridConfigurationId'].unique()
+            schema_name_payload: List[Dict[str, Any]] = []
+
+            for name, group in group_grid_name:
+                group_table_name = group.groupby('targetTableName')
+                payload_tables: List[Dict[str, Any]] = []
+                for (idx, table_row) in group_table_name:
+                    payload_columns: List[Dict[str, Any]] = []
+                    for i, row in table_row.iterrows():
+                        grid_name = row['gridConfigurationName']
+                        payload_columns.append({
+                            "name": row['columnName'],
+                            "label": row['labelName'],
+                            "type": row['DataTypeName'],
+                            "longType": row['DataTypeName'],
+                            "keys": [],
+                            "comment": None})
+                    table_name = idx
+                    table = {
+                        "value": table_name,
+                        "schema": schema_name,
+                        "title": table_name,
+                        "label": table_name,
+                        "type": 'table',
+                        "extra": None,
+                        "columns": payload_columns}
+
+                    payload_tables.append(table)
+                schema = {
+                    "value": name,
+                    "schema": grid_name,
+                    "type": 'schema',
+                    "tables": payload_tables,
+
+                }
+
+                schema_name_payload.append(schema)
+            table_final_payload = {
+                "schemalength": len(unq_schemas),
+                "options": schema_name_payload
+            }
+
+            return json_success(json.dumps(table_final_payload))
+        except SQLAlchemyError as ex:
+            self.incr_stats("error", self.table_metadata.__name__)
+        except Exception as ex:
+            logger.error(
+                "Error when fetching table and column metadata %s: %s",
+                self.__class__.__name__,
+                str(ex),
+                exc_info=True,
+            )
+            return self.response_422(message=str(ex))
+
+    @expose("/sqlbuilder_metadata/", methods=["POST"])
+    @protect()
+    @safe
+    # @rison(database_schemas_query_schema)
+    # @check_datasource_access
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args,
+                      **kwargs: f"{self.__class__.__name__}" f".sqlbuilder_metadata",
+        log_to_statsd=False,
+    )
+    def sqlbuilder_metadata(
+        self, **kwargs: Any
+    ) -> FlaskResponse:
+        """SQL Builder
+        Tests a database connection
+        ---
+        post:
+          description: >-
+            Get SQL query from json metadata
+          requestBody:
+            description: sql json schema
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: ""
+          responses:
+            200:
+              description: Database Test Connection
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+            400:
+              $ref: '#/components/responses/400'
+            422:
+              $ref: '#/components/responses/422'
+            500:
+              $ref: '#/components/responses/500'
+        """
+        try:
+            # print(json.load(sql_json))
+            sql_json_schema = request.json
+            return json_success(json.dumps({
+                "data":
+                    SQLBuilder.build_sql(self, sql_json_schema)}))
+        except SQLAlchemyError as ex:
+            self.incr_stats("error", self.table_metadata.__name__)
+        except Exception as ex:
+            logger.error(
+                "Error when fetching table and column metadata %s: %s",
                 self.__class__.__name__,
                 str(ex),
                 exc_info=True,
@@ -1039,3 +1232,122 @@ class DatabaseRestApi(BaseSupersetModelRestApi):
         command = ValidateDatabaseParametersCommand(g.user, payload)
         command.run()
         return self.response(200, message="OK")
+
+
+    #Method to fetch the list of tables for given database
+    @staticmethod
+    def get_table_list(self,  db_id: int,
+        schema: str,
+        substr: str,
+        force_refresh: str = "false",
+        exact_match: str = "false",):
+
+      # Guarantees database filtering by security access
+      query = db.session.query(Database)
+      query = DatabaseFilter("id", SQLAInterface(Database, db.session)).apply(
+            query, None
+        )
+      database = query.filter_by(id=db_id).one_or_none()
+      if not database:
+        return []
+
+      force_refresh_parsed = force_refresh.lower() == "true"
+      exact_match_parsed = exact_match.lower() == "true"
+      schema_parsed = utils.parse_js_uri_path_item(schema, eval_undefined=True)
+      substr_parsed = utils.parse_js_uri_path_item(substr, eval_undefined=True)
+
+      if schema_parsed:
+          tables = (
+              database.get_all_table_names_in_schema(
+                  schema=schema_parsed,
+                  force=force_refresh_parsed,
+                  cache=database.table_cache_enabled,
+                  cache_timeout=database.table_cache_timeout,
+              )
+              or []
+          )
+          views = (
+              database.get_all_view_names_in_schema(
+                  schema=schema_parsed,
+                  force=force_refresh_parsed,
+                  cache=database.table_cache_enabled,
+                  cache_timeout=database.table_cache_timeout,
+              )
+              or []
+          )
+      else:
+          tables = database.get_all_table_names_in_database(
+              cache=True, force=False, cache_timeout=24 * 60 * 60
+          )
+          views = database.get_all_view_names_in_database(
+              cache=True, force=False, cache_timeout=24 * 60 * 60
+          )
+      tables = security_manager.get_datasources_accessible_by_user(
+          database, tables, schema_parsed
+      )
+      views = security_manager.get_datasources_accessible_by_user(
+          database, views, schema_parsed
+      )
+
+      def get_datasource_label(ds_name: utils.DatasourceName) -> str:
+          return (
+              ds_name.table if schema_parsed else f"{ds_name.schema}.{ds_name.table}"
+          )
+
+      def is_match(src: str, target: utils.DatasourceName) -> bool:
+          target_label = get_datasource_label(target)
+          if exact_match_parsed:
+              return src == target_label
+          return src in target_label
+
+      if substr_parsed:
+          tables = [tn for tn in tables if is_match(substr_parsed, tn)]
+          views = [vn for vn in views if is_match(substr_parsed, vn)]
+
+      if not schema_parsed and database.default_schemas:
+          user_schemas = (
+              [g.user.email.split("@")[0]] if hasattr(g.user, "email") else []
+          )
+          valid_schemas = set(database.default_schemas + user_schemas)
+
+          tables = [tn for tn in tables if tn.schema in valid_schemas]
+          views = [vn for vn in views if vn.schema in valid_schemas]
+
+      max_items = app.config["MAX_TABLE_NAMES"] or len(tables)
+      total_items = len(tables) + len(views)
+      max_tables = len(tables)
+      max_views = len(views)
+      if total_items and substr_parsed:
+          max_tables = max_items * len(tables) // total_items
+          max_views = max_items * len(views) // total_items
+
+      dataset_tables = {table.name: table for table in database.tables}
+
+      table_options = [
+          {
+              "value": tn.table,
+              "schema": tn.schema,
+              "label": get_datasource_label(tn),
+              "title": get_datasource_label(tn),
+              "type": "table",
+              "extra": dataset_tables[f"{tn.schema}.{tn.table}"].extra_dict
+              if (f"{tn.schema}.{tn.table}" in dataset_tables)
+              else None,
+          }
+          for tn in tables[:max_tables]
+      ]
+      table_options.extend(
+          [
+              {
+                  "value": vn.table,
+                  "schema": vn.schema,
+                  "label": get_datasource_label(vn),
+                  "title": get_datasource_label(vn),
+                  "type": "view",
+              }
+              for vn in views[:max_views]
+          ]
+      )
+      table_options.sort(key=lambda value: value["label"])
+      payload = {"tableLength": len(tables) + len(views), "options": table_options}
+      return payload
