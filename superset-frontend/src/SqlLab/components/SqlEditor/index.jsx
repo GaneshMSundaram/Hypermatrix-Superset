@@ -36,6 +36,8 @@ import { Input } from 'src/components/Input';
 import { Menu } from 'src/components/Menu';
 import Icons from 'src/components/Icons';
 import { detectOS } from 'src/utils/common';
+import { format } from 'sql-formatter';
+
 import {
   addQueryEditor,
   CtasEnum,
@@ -700,28 +702,42 @@ class SqlEditor extends React.PureComponent {
   }  
   generateQuery = () => {
     if (generateBtnFlag) {
+      $('.freezeScreen').css('display','block');
       this.loadDimensionData();
       this.loadMeasureData();
       const schemaName = sessionStorage.getItem('schemaName');
+      const conditionText = $('#sqlData').text();
+      // const replaceSingleQuote = conditionText.replace(/'/g, '"');
       const payload = {
-        schemaName:schemaName,
+        schemaName: schemaName,
         dimensionData: dimensionDataArray,
         measureData: measureDataArray,
-        conditionData:$('#sqlData').text(),
+        conditionData: conditionText,
         conditionDataJson: this.state.dbQuery
       }
       console.log('Final Payload: ', payload);
-      const convertJson = JSON.stringify(payload);
-      const endpoint = `api/v1/database/sqlbuilder_metadata/${convertJson}`;
-      // TODO: Would be nice to add pagination in a follow-up. Needs endpoint changes.
-      SupersetClient.get({ endpoint })
-        .then(({ json }) => {
-                console.log('Json Data :', json)    
-        })
-        .catch(() => {          
-          
-        });
-    }  
+      const endpoint = 'api/v1/database/sqlbuilder_metadata/';
+      const querySettings = {
+        endpoint,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      };
+      SupersetClient.post(querySettings)
+      .then((response) => {
+        $('.freezeScreen').css('display','none');
+        $('.ace_text-layer').text(response.json.data);
+        setTimeout(() => {
+          const newFormatText = format($('.ace_text-layer').text());
+          $('.ace_text-layer').text(newFormatText);
+        }, 0);
+        
+
+      })      
+      .catch((error) => {
+        console.error('Error:', error);
+        $('.freezeScreen').css('display','none');
+      });
+    }
   }
   queryPane() {
     const hotkeys = this.getHotkeyConfig();
@@ -797,7 +813,7 @@ class SqlEditor extends React.PureComponent {
                   })}
                 </ul>              
               </div>
-            </div>
+            </div>            
           </div>
           <div className='conditionBox'>
             <div className='positionRelative'>
@@ -812,7 +828,7 @@ class SqlEditor extends React.PureComponent {
                 query={this.state.dbQuery}
               /> 
               <pre id='sqlData'>{formatQuery(this.state.dbQuery,'sql')}</pre>
-              <pre>{formatQuery(this.state.dbQuery,'json')}</pre>              
+              {/* <pre>{formatQuery(this.state.dbQuery,'json')}</pre>               */}
             </div>
             <div className='generateQuery'><div id="generateQueryBtn" className='generateQueryBtn disabledBtn' onClick={() => this.generateQuery()}>Generate Query</div></div>
 
@@ -1052,8 +1068,8 @@ class SqlEditor extends React.PureComponent {
     const leftBarStateClass = this.props.hideLeftBar
       ? 'schemaPane-exit-done'
       : 'schemaPane-enter-done';
-    return (
-      <div ref={this.sqlEditorRef} className="SqlEditor">
+    return (      
+      <div ref={this.sqlEditorRef} className="SqlEditor">        
         <CSSTransition
           classNames="schemaPane"
           in={!this.props.hideLeftBar}
