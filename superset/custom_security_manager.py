@@ -15,7 +15,7 @@ class SupersetAuthRemoteUserView(AuthRemoteUserView):
       print("This is LOGIN")
 
       username = request.headers.get('session')
-      user = self.appbuilder.sm.find_user('admin')
+      user = self.appbuilder.sm.find_user('sonuk')
       login_user(user, remember=False)
 
       user = environ.pop('HTTP_X_PROXY_REMOTE_USER', None)
